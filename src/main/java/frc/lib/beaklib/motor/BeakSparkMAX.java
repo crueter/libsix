@@ -4,27 +4,33 @@
 
 package frc.lib.beaklib.motor;
 
+import static edu.wpi.first.units.Units.Inches;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxLimitSwitch;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.SparkMaxLimitSwitch.Type;
+import com.revrobotics.SparkLimitSwitch;
+import com.revrobotics.SparkLimitSwitch.Type;
+import com.revrobotics.SparkPIDController;
 
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
 import frc.lib.beaklib.pid.BeakPIDConstants;
-import frc.lib.beaklib.units.Distance;
 
 /** Common motor controller interface for REV Spark MAX. */
 public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
     private RelativeEncoder m_encoder;
-    private SparkMaxPIDController m_pid;
+    private SparkPIDController m_pid;
 
-    private SparkMaxLimitSwitch m_revLimitSwitch;
-    private SparkMaxLimitSwitch m_fwdLimitSwitch;
+    private SparkLimitSwitch m_revLimitSwitch;
+    private SparkLimitSwitch m_fwdLimitSwitch;
 
     private double m_velocityConversionConstant = 1.;
     private double m_positionConversionConstant = 1.;
     private double m_gearRatio = 1.;
-    private Distance m_wheelDiameter = Distance.fromInches(4.);
+    private Measure<Distance> m_wheelDiameter = Inches.of(4.);
+
+    private int m_slot = 0;
+    private double m_arbFeedforward = 0.;
 
     public BeakSparkMAX(int port) {
         super(port, MotorType.kBrushless);
@@ -38,13 +44,13 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
     }
 
     @Override
-    public void setVelocityNU(double nu, double arbFeedforward, int slot) {
-        m_pid.setReference(nu, ControlType.kVelocity, slot, arbFeedforward);
+    public void setVelocityNU(double nu) {
+        m_pid.setReference(nu, ControlType.kVelocity, m_slot, m_arbFeedforward);
     }
 
     @Override
-    public void setPositionNU(double nu, double arbFeedforward, int slot) {
-        m_pid.setReference(nu, ControlType.kPosition, slot, arbFeedforward);
+    public void setPositionNU(double nu) {
+        m_pid.setReference(nu, ControlType.kPosition, m_slot, m_arbFeedforward);
     }
 
     @Override
@@ -53,8 +59,8 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
     }
 
     @Override
-    public void setMotionMagicNU(double nu, double arbFeedforward, int slot) {
-        m_pid.setReference(nu, ControlType.kSmartMotion, slot, arbFeedforward);
+    public void setMotionMagicNU(double nu) {
+        m_pid.setReference(nu, ControlType.kSmartMotion, m_slot, m_arbFeedforward);
     }
 
     @Override
@@ -103,8 +109,8 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
     }
 
     @Override
-    public void setAllowedClosedLoopError(double error, int slot) {
-        m_pid.setSmartMotionAllowedClosedLoopError(error, slot);
+    public void setAllowedClosedLoopError(double error) {
+        m_pid.setSmartMotionAllowedClosedLoopError(error, m_slot);
     }
 
     @Override
@@ -113,40 +119,35 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
     }
 
     @Override
-    public void setMotionMagicAcceleration(double accel, int slot) {
-        m_pid.setSmartMotionMaxAccel(accel, slot);
+    public void setMotionMagicAcceleration(double accel) {
+        m_pid.setSmartMotionMaxAccel(accel, m_slot);
     }
 
     @Override
-    public void setMotionMagicCruiseVelocity(double velocity, int slot) {
-        m_pid.setSmartMotionMaxVelocity(velocity, slot);
+    public void setMotionMagicCruiseVelocity(double velocity) {
+        m_pid.setSmartMotionMaxVelocity(velocity, m_slot);
     }
 
     @Override
-    public void set(double percentOutput, double arbFeedforward) {
-        m_pid.setReference(percentOutput, ControlType.kDutyCycle, 0, arbFeedforward);
+    public void set(double percentOutput) {
+        m_pid.setReference(percentOutput, ControlType.kDutyCycle, 0, m_arbFeedforward);
     }
 
     @Override
-    public void setStatusPeriod(int value, int period) {
-        super.setPeriodicFramePeriod(PeriodicFrame.fromId(value), period);
+    public void setPID(BeakPIDConstants constants) {
+        m_pid.setP(constants.kP, m_slot);
+        m_pid.setI(constants.kI, m_slot);
+        m_pid.setD(constants.kD, m_slot);
+        m_pid.setFF(constants.kF, m_slot);
     }
 
     @Override
-    public void setPID(BeakPIDConstants constants, int slot) {
-        m_pid.setP(constants.kP, slot);
-        m_pid.setI(constants.kI, slot);
-        m_pid.setD(constants.kD, slot);
-        m_pid.setFF(constants.kF, slot);
-    }
-
-    @Override
-    public BeakPIDConstants getPID(int slot) {
+    public BeakPIDConstants getPID() {
         return new BeakPIDConstants(
-            m_pid.getP(slot),
-            m_pid.getI(slot),
-            m_pid.getD(slot),
-            m_pid.getFF(slot));
+                m_pid.getP(m_slot),
+                m_pid.getI(m_slot),
+                m_pid.getD(m_slot),
+                m_pid.getFF(m_slot));
     }
 
     @Override
@@ -185,12 +186,12 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
     }
 
     @Override
-    public void setWheelDiameter(Distance diameter) {
+    public void setWheelDiameter(Measure<Distance> diameter) {
         m_wheelDiameter = diameter;
     }
 
     @Override
-    public Distance getWheelDiameter() {
+    public Measure<Distance> getWheelDiameter() {
         return m_wheelDiameter;
     }
 
@@ -200,5 +201,15 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
 
         m_revLimitSwitch = super.getReverseLimitSwitch(Type.kNormallyOpen);
         m_fwdLimitSwitch = super.getForwardLimitSwitch(Type.kNormallyOpen);
+    }
+
+    @Override
+    public void setNextArbFeedforward(double arbFeedforward) {
+        m_arbFeedforward = arbFeedforward;
+    }
+
+    @Override
+    public void setSlot(int slot) {
+        m_slot = slot;
     }
 }

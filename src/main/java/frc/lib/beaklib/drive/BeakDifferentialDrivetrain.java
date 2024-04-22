@@ -16,7 +16,6 @@ import frc.lib.beaklib.drive.swerve.DrivetrainConfiguration;
 import frc.lib.beaklib.gyro.BeakGyro;
 import frc.lib.beaklib.motor.BeakMotorControllerGroup;
 import frc.lib.beaklib.pid.BeakPIDConstants;
-import frc.lib.beaklib.units.Velocity;
 
 /** Base class for all differential (tank, kitbot, WCD) drivetrains. */
 public class BeakDifferentialDrivetrain extends BeakDrivetrain {
@@ -52,7 +51,7 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
 
         m_config = config;
 
-        m_kinematics = new DifferentialDriveKinematics(m_trackWidth.getAsMeters());
+        m_kinematics = new DifferentialDriveKinematics(m_trackWidth.in(Meters));
         m_odom = new DifferentialDrivePoseEstimator(m_kinematics, getGyroRotation2d(), 0., 0., new Pose2d());
     }
 

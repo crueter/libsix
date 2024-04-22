@@ -4,13 +4,17 @@
 
 package frc.lib.beaklib.gyro;
 
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.lib.beaklib.motor.DataSignal;
-import frc.lib.beaklib.units.AngularVelocity;
 
 /** A v6 CTRE Pigeon 2 implemented as a BeakGyro. */
 public class BeakV6Pigeon2 extends Pigeon2 implements BeakGyro {
@@ -33,7 +37,7 @@ public class BeakV6Pigeon2 extends Pigeon2 implements BeakGyro {
             // pitch is about Y
             // roll is about X
             // yaw is about Z
-            pitchValue = StatusSignal.getLatencyCompensatedValue(pitch, getAngularVelocityY());
+            pitchValue = StatusSignal.getLatencyCompensatedValue(pitch, getAngularVelocityYDevice());
             pitchTime = RobotController.getFPGATime() / 1000000.;
         } else {
             pitchValue = pitch.getValue();
@@ -51,7 +55,7 @@ public class BeakV6Pigeon2 extends Pigeon2 implements BeakGyro {
         StatusSignal<Double> roll = getRoll();
 
         if (latencyCompensated) {
-            rollValue = StatusSignal.getLatencyCompensatedValue(roll, getAngularVelocityX());
+            rollValue = StatusSignal.getLatencyCompensatedValue(roll, getAngularVelocityXDevice());
             rollTime = RobotController.getFPGATime() / 1000000.;
         } else {
             rollValue = roll.getValue();
@@ -69,7 +73,7 @@ public class BeakV6Pigeon2 extends Pigeon2 implements BeakGyro {
         StatusSignal<Double> yaw = getYaw();
 
         if (latencyCompensated) {
-            yawValue = StatusSignal.getLatencyCompensatedValue(yaw, getAngularVelocityZ());
+            yawValue = StatusSignal.getLatencyCompensatedValue(yaw, getAngularVelocityZDevice());
             yawTime = RobotController.getFPGATime() / 1000000.;
         } else {
             yawValue = yaw.getValue();
@@ -81,10 +85,10 @@ public class BeakV6Pigeon2 extends Pigeon2 implements BeakGyro {
     }
 
     @Override
-    public DataSignal<AngularVelocity> getAngularVelocity() {
-        StatusSignal<Double> angularVelocity = super.getAngularVelocityZ();
+    public DataSignal<Measure<Velocity<Angle>>> getAngularVelocity() {
+        StatusSignal<Double> angularVelocity = super.getAngularVelocityZDevice();
 
-        return new DataSignal<AngularVelocity>(AngularVelocity.fromDegreesPerSecond(angularVelocity.getValue()), angularVelocity.getTimestamp().getTime());
+        return new DataSignal<Measure<Velocity<Angle>>>(DegreesPerSecond.of(angularVelocity.getValue()), angularVelocity.getTimestamp().getTime());
     }
 
 }

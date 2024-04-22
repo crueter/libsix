@@ -5,12 +5,14 @@
 package frc.lib.beaklib.gyro;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
+import edu.wpi.first.units.Angle;
+
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
 import frc.lib.beaklib.motor.DataSignal;
-import frc.lib.beaklib.units.AngularVelocity;
 
 /** Standard WPILib Gyro with pitch & roll methods. */
-public interface BeakGyro extends Gyro {
+public interface BeakGyro {
     /**
      * Return the pitch of the robot.
      * 
@@ -53,5 +55,5 @@ public interface BeakGyro extends Gyro {
      * 
      * @return The current angular velocity of the robot.
      */
-    public DataSignal<AngularVelocity> getAngularVelocity();
+    public DataSignal<Measure<Velocity<Angle>>> getAngularVelocity();
 }

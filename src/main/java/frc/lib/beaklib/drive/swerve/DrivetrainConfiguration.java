@@ -4,8 +4,6 @@
 
 package frc.lib.beaklib.drive.swerve;
 
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import frc.lib.beaklib.drive.RobotPhysics;
 import frc.lib.beaklib.pid.BeakPIDConstants;
 
 /** Constants of any drivetrain type. */
@@ -13,66 +11,57 @@ public class DrivetrainConfiguration {
     public final BeakPIDConstants DrivePID;
     public final BeakPIDConstants TurnPID;
 
-    public final double AllowedClosedLoopError;
-
     public final int TurnCurrentLimit;
     public final int DriveSupplyLimit;
+
     public final int DriveStatorLimit;
 
     public final String CANBus;
-    public final SimpleMotorFeedforward Feedforward;
 
-    public final boolean IsOpenLoop;
+    public final double MaxSpeed;
+    public final double MaxAngularVelocity;
+    public final double MaxAcceleration;
 
-    public final RobotPhysics Physics;
+    public final double TrackWidth;
+    public final double WheelBase;
+    public final double WheelDiameter;
+
+    public final double DriveRatio;
+    public final double TurnRatio;
 
     /**
-     * Create a new Drivetrain Configuration.
-     * 
-     * @param drivePID
-     *            PID constants for the drive motor, if applicable.
-     * @param turnPID
-     *            PID constants for the turning motor, if applicable.
-     * @param isOpenLoop
-     *            Set to true if your drivetrain is not characterized.
-     * @param allowedClosedLoopError
-     *            Allowed error of the turning motor, in NU, if applicable.
-     * @param turnCurrentLimit
-     *            Current limit of the turning motor, if applicable.
-     * @param driveSupplyLimit
-     *            Supply current limit of the drive motor.
-     * @param driveStatorLimit
-     *            Stator current limit of the drive motor (if on
-     *            Falcons).
-     * @param CANBus
-     *            CAN Bus that the drivetrain lies on (leave
-     *            blank for default).
-     * @param feedforward
-     *            {@link SimpleMotorFeedforward} for the
-     *            drivetrain.
-     * @param physics
-     *            {@link RobotPhysics} of the drivetrain.
+     * @param drivePID           PID constants for the drive motors
+     * @param turnPID            PID constants for the turn motors
+     * @param turnCurrentLimit   Supply/stator limits for the turn motors
+     * @param driveSupplyLimit   Supply limits for the drive motors
+     * @param driveStatorLimit   Stator limits for the drive motors
+     * @param canBus             The CAN Bus the drivetrain is attached to.
+     * @param maxSpeed           The robot's max speed, in m/s
+     * @param maxAngularVelocity The robot's max angular velocity, in rad/s
+     * @param maxAcceleration    The robot's max acceleration, in m/s/s
+     * @param trackWidth         Track width of the robot, in inches
+     * @param wheelBase          Wheel base of the robot, in inches
+     * @param wheelDiameter      Diameter of the wheels, in inches
+     * @param driveRatio         Ratio between the drive motor & output wheel (>1)
+     * @param turnRatio          Ratio between the turn motor & output bearing (>1)
      */
-    public DrivetrainConfiguration(
-        BeakPIDConstants drivePID,
-        BeakPIDConstants turnPID,
-        boolean isOpenLoop,
-        double allowedClosedLoopError,
-        int turnCurrentLimit,
-        int driveSupplyLimit,
-        int driveStatorLimit,
-        String CANBus,
-        SimpleMotorFeedforward feedforward,
-        RobotPhysics physics) {
-        this.DrivePID = drivePID;
-        this.TurnPID = turnPID;
-        this.IsOpenLoop = isOpenLoop;
-        this.AllowedClosedLoopError = allowedClosedLoopError;
-        this.TurnCurrentLimit = turnCurrentLimit;
-        this.DriveSupplyLimit = driveSupplyLimit;
-        this.DriveStatorLimit = driveStatorLimit;
-        this.CANBus = CANBus;
-        this.Feedforward = feedforward;
-        this.Physics = physics;
+    public DrivetrainConfiguration(BeakPIDConstants drivePID, BeakPIDConstants turnPID, int turnCurrentLimit,
+            int driveSupplyLimit, int driveStatorLimit, String canBus, double maxSpeed, double maxAngularVelocity,
+            double maxAcceleration, double trackWidth, double wheelBase, double wheelDiameter, double driveRatio,
+            double turnRatio) {
+        DrivePID = drivePID;
+        TurnPID = turnPID;
+        TurnCurrentLimit = turnCurrentLimit;
+        DriveSupplyLimit = driveSupplyLimit;
+        DriveStatorLimit = driveStatorLimit;
+        CANBus = canBus;
+        MaxSpeed = maxSpeed;
+        MaxAngularVelocity = maxAngularVelocity;
+        MaxAcceleration = maxAcceleration;
+        TrackWidth = trackWidth;
+        WheelBase = wheelBase;
+        WheelDiameter = wheelDiameter;
+        DriveRatio = driveRatio;
+        TurnRatio = turnRatio;
     }
 }
