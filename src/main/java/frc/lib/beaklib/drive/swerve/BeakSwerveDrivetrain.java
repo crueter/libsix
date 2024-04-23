@@ -17,10 +17,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.lib.beaklib.drive.BeakDrivetrain;
-import frc.lib.beaklib.drive.RobotPhysics;
-import frc.lib.beaklib.gyro.BeakGyro;
-import frc.lib.beaklib.pid.BeakPIDConstants;
 
+import frc.lib.beaklib.gyro.BeakGyro;
 
 /** Generic Swerve Drivetrain subsystem. */
 public class BeakSwerveDrivetrain extends BeakDrivetrain {
@@ -33,42 +31,21 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
      * return the front left module.
      */
     protected List<BeakSwerveModule> m_modules = new ArrayList<BeakSwerveModule>();
-    int m_numModules;
+
+    protected int m_numModules;
 
     protected SwerveDrivePoseEstimator m_odom;
     protected SwerveDriveKinematics m_kinematics;
 
     /**
      * Create a new Swerve drivetrain.
-     * 
-     * @param physics
-     *            {@link RobotPhysics} containing the robot's
-     *            physical
-     *            details.
      * @param gyro
      *            The gyroscope used by this drivetrain.
-     * @param thetaPID
-     *            The PID gains for the theta controller.
-     * @param drivePID
-     *            The PID gains for the auton drive controller.
-     * @param generatedDrivePID
-     *            The PID gains for generated paths using the
-     *            {@link GeneratePath} command.
-     * @param configs
-     *            Configurations for all swerve modules.
      */
     public BeakSwerveDrivetrain(
-        RobotPhysics physics,
-        BeakGyro gyro,
-        boolean gyroInverted,
-        BeakPIDConstants thetaPID,
-        BeakPIDConstants drivePID,
-        BeakPIDConstants generatedDrivePID) {
-        super(physics,
-            thetaPID,
-            drivePID,
-            generatedDrivePID,
-            gyroInverted);
+        DrivetrainConfiguration config,
+        BeakGyro gyro) {
+        super(config);
 
         m_gyro = gyro;
     }
@@ -121,19 +98,7 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
         if (!pose.equals(new Pose2d()))
             m_odom.resetPosition(getGyroRotation2d(), getModulePositions(), pose);
     }
-
-    @Override
-    public void drive(double x, double y, double rot, boolean fieldRelative) {
-        x *= m_maxVelocity.getAsMetersPerSecond();
-        y *= m_maxVelocity.getAsMetersPerSecond();
-        rot *= m_maxAngularVelocity.getAsRadiansPerSecond();
-
-        ChassisSpeeds speeds = fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(x, y, rot, getRotation2d())
-            : new ChassisSpeeds(x, y, rot);
-
-        drive(speeds);
-    }
-
+    
     @Override
     public void drive(ChassisSpeeds speeds) {
         SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(speeds);
@@ -150,10 +115,10 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
      *            An array of the desired states for the m_modules.
      */
     public void setModuleStates(SwerveModuleState[] desiredStates) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, m_maxVelocity.getAsMetersPerSecond());
+        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, m_config.MaxSpeed);
 
         for (int i = 0; i < desiredStates.length; i++) {
-            m_modules.get(i).setDesiredState(desiredStates[i]);
+            // m_modules.get(i).setDesiredState(desiredStates[i]);
         }
     }
 

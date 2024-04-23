@@ -4,21 +4,14 @@
 
 package frc.robot.subsystems.swerve;
 
-import frc.lib.beaklib.drive.RobotPhysics;
 import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
-import frc.lib.beaklib.drive.swerve.SdsModuleConfiguration;
-import frc.lib.beaklib.drive.swerve.SdsModuleConfigurations;
 import frc.lib.beaklib.drive.swerve.DrivetrainConfiguration;
 import frc.lib.beaklib.drive.swerve.SwerveModuleConfiguration;
 import frc.lib.beaklib.gyro.BeakV6Pigeon2;
 import frc.lib.beaklib.pid.BeakPIDConstants;
-import frc.lib.beaklib.units.Acceleration;
-import frc.lib.beaklib.units.AngularVelocity;
-import frc.lib.beaklib.units.Distance;
-import frc.lib.beaklib.units.Velocity;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -56,71 +49,66 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final BeakPIDConstants DRIVE_PID = new BeakPIDConstants(0.03);
     private static final BeakPIDConstants TURN_PID = new BeakPIDConstants(0.15);
 
-    private static final BeakPIDConstants AUTON_DRIVE_PID = new BeakPIDConstants(4.0, 0., 0.01);
-    private static final BeakPIDConstants GENERATED_AUTON_DRIVE_PID = new BeakPIDConstants(7.5, 0., 0.01);
-    private static final BeakPIDConstants AUTON_THETA_PID = new BeakPIDConstants(5.0, 0., 0.2);
-
     private static final int PIGEON2_ID = 0;
     private static final String CAN_BUS = "rio";
 
-    private static final SimpleMotorFeedforward FEED_FORWARD = new SimpleMotorFeedforward(
-        (.2212 + .151 + .163) / 3.,
-        (2.3 + 2.32 + 2.33) / 3.,
-        (.421 + .849 + .708) / 3.);
+    // private static final SimpleMotorFeedforward FEED_FORWARD = new SimpleMotorFeedforward(
+    //     (.2212 + .151 + .163) / 3.,
+    //     (2.3 + 2.32 + 2.33) / 3.,
+    //     (.421 + .849 + .708) / 3.);
 
-    private static final SdsModuleConfiguration CONFIGURATION = SdsModuleConfigurations.MK4I_L2;
-
-    private static final Velocity MAX_VELOCITY = Velocity.fromFeetPerSecond(16.3);
-    private static final Acceleration MAX_ACCEL = Acceleration.fromFeetPerSecondSquared(16.3);
+    private static final double MAX_VELOCITY = 6.0;
+    private static final double MAX_ACCEL = 6.0;
 
     // distance from the right to left wheels on the robot
-    private static final Distance TRACK_WIDTH = Distance.fromInches(19.688); // 24.
+    private static final double TRACK_WIDTH = 19.688;
     // distance from the front to back wheels on the robot
-    private static final Distance WHEEL_BASE = Distance.fromInches(23.688); // 28.
+    private static final double WHEEL_BASE = 23.688;
 
-    private static final RobotPhysics PHYSICS = new RobotPhysics(
-        MAX_VELOCITY,
-        new AngularVelocity(),
-        MAX_ACCEL,
-        TRACK_WIDTH,
-        WHEEL_BASE,
-        CONFIGURATION.wheelDiameter,
-        CONFIGURATION.driveGearRatio,
-        FEED_FORWARD);
+    // wheel diameter
+    private static final double WHEEL_DIAMETER = 3.85;
+
+    // Inverted
+    private static final boolean RIGHT_SIDE_INVERTED = true;
+    private static final boolean LEFT_SIDE_INVERTED = false;
+    private static final boolean STEER_INVERTED = true;
+
+    // Ratios
+    private static final double DRIVE_RATIO = 1 / ((14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0));
+    private static final double TURN_RATIO = (150.0 / 7.0);
 
     private static SwerveDrivetrain m_instance;
 
     private Field2d m_field = new Field2d();
 
+    // MODULES
     private static final int FL_DRIVE_ID = 2;
     private static final int FL_TURN_ID = 1;
-    private static final int FL_ENCODER_ID = 1; // SHOULD BE 9
+    private static final int FL_ENCODER_ID = 1;
     private static final Rotation2d FL_OFFSET = Rotation2d.fromDegrees(-357.4);
-    private static final Translation2d FL_LOCATION = new Translation2d(WHEEL_BASE.getAsMeters() / 2,
-        TRACK_WIDTH.getAsMeters() / 2); // TODO: Please God BeakTranslation2d
+    private static final Translation2d FL_LOCATION = new Translation2d(Units.inchesToMeters(WHEEL_BASE) / 2,
+        Units.inchesToMeters(TRACK_WIDTH) / 2); // TODO: Please God BeakTranslation2d
 
     private static final int FR_DRIVE_ID = 4;
     private static final int FR_TURN_ID = 3;
-    private static final int FR_ENCODER_ID = 2; // SHOULD BE 10
+    private static final int FR_ENCODER_ID = 2;
     private static final Rotation2d FR_OFFSET = Rotation2d.fromDegrees(-271.3);
-    private static final Translation2d FR_LOCATION = new Translation2d(WHEEL_BASE.getAsMeters() / 2,
-        -TRACK_WIDTH.getAsMeters() / 2);
+    private static final Translation2d FR_LOCATION = new Translation2d(Units.inchesToMeters(WHEEL_BASE) / 2,
+        Units.inchesToMeters(-TRACK_WIDTH) / 2);
 
     private static final int BL_DRIVE_ID = 6;
     private static final int BL_TURN_ID = 5;
-    private static final int BL_ENCODER_ID = 3; // SHOULD BE 11
+    private static final int BL_ENCODER_ID = 3;
     private static final Rotation2d BL_OFFSET = Rotation2d.fromDegrees(-327.3);
-    private static final Translation2d BL_LOCATION = new Translation2d(-WHEEL_BASE.getAsMeters() / 2,
-        TRACK_WIDTH.getAsMeters() / 2);
+    private static final Translation2d BL_LOCATION = new Translation2d(Units.inchesToMeters(-WHEEL_BASE) / 2,
+        Units.inchesToMeters(TRACK_WIDTH) / 2);
 
     private static final int BR_DRIVE_ID = 8;
     private static final int BR_TURN_ID = 7;
-    private static final int BR_ENCODER_ID = 4; // SHOULD BE 12
+    private static final int BR_ENCODER_ID = 4;
     private static final Rotation2d BR_OFFSET = Rotation2d.fromDegrees(-160.5);
-    private static final Translation2d BR_LOCATION = new Translation2d(-WHEEL_BASE.getAsMeters() / 2,
-        -TRACK_WIDTH.getAsMeters() / 2);
-
-    private static final double ALLOWED_CLOSED_LOOP_ERROR = 40.0;
+    private static final Translation2d BR_LOCATION = new Translation2d(Units.inchesToMeters(-WHEEL_BASE) / 2,
+        Units.inchesToMeters(-TRACK_WIDTH) / 2);
 
     private static final int TURN_CURRENT_LIMIT = 20;
     private static final int DRIVE_SUPPLY_LIMIT = 75;
@@ -129,65 +117,40 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
     private final static BeakV6Pigeon2 m_gyro = new BeakV6Pigeon2(PIGEON2_ID, CAN_BUS);
 
     private static final DrivetrainConfiguration DRIVE_CONFIG = new DrivetrainConfiguration(
-        DRIVE_PID,
-        TURN_PID,
-        false,
-        ALLOWED_CLOSED_LOOP_ERROR,
-        TURN_CURRENT_LIMIT,
-        DRIVE_SUPPLY_LIMIT,
-        DRIVE_STATOR_LIMIT,
-        CAN_BUS,
-        FEED_FORWARD,
-        PHYSICS);
+        DRIVE_PID, TURN_PID, TURN_CURRENT_LIMIT, DRIVE_SUPPLY_LIMIT, DRIVE_STATOR_LIMIT, CAN_BUS, MAX_VELOCITY, 2 * Math.PI, MAX_ACCEL, TRACK_WIDTH, WHEEL_BASE, WHEEL_DIAMETER, DRIVE_RATIO, TURN_RATIO);
 
     private static SwerveModuleConfiguration m_frontLeftConfig = new SwerveModuleConfiguration(
         FL_OFFSET,
         FL_LOCATION,
-        CONFIGURATION.driveGearRatio,
-        CONFIGURATION.turnGearRatio,
-        CONFIGURATION.wheelDiameter,
-        CONFIGURATION.driveInverted,
-        CONFIGURATION.turnInverted,
+        LEFT_SIDE_INVERTED,
+        STEER_INVERTED,
         DRIVE_CONFIG);
 
     private static SwerveModuleConfiguration m_frontRightConfig = new SwerveModuleConfiguration(
         FR_OFFSET,
         FR_LOCATION,
-        CONFIGURATION.driveGearRatio,
-        CONFIGURATION.turnGearRatio,
-        CONFIGURATION.wheelDiameter,
-        CONFIGURATION.driveInverted,
-        CONFIGURATION.turnInverted,
+        RIGHT_SIDE_INVERTED,
+        STEER_INVERTED,
         DRIVE_CONFIG);
 
     private static SwerveModuleConfiguration m_backLeftConfig = new SwerveModuleConfiguration(
         BL_OFFSET,
         BL_LOCATION,
-        CONFIGURATION.driveGearRatio,
-        CONFIGURATION.turnGearRatio,
-        CONFIGURATION.wheelDiameter,
-        CONFIGURATION.driveInverted,
-        CONFIGURATION.turnInverted,
+        LEFT_SIDE_INVERTED,
+        STEER_INVERTED,
         DRIVE_CONFIG);
 
     private static SwerveModuleConfiguration m_backRightConfig = new SwerveModuleConfiguration(
         BR_OFFSET,
         BR_LOCATION,
-        CONFIGURATION.driveGearRatio,
-        CONFIGURATION.turnGearRatio,
-        CONFIGURATION.wheelDiameter,
-        CONFIGURATION.driveInverted,
-        CONFIGURATION.turnInverted,
+        RIGHT_SIDE_INVERTED,
+        STEER_INVERTED,
         DRIVE_CONFIG);
 
     public SwerveDrivetrain() {
         super(
-            PHYSICS,
-            m_gyro,
-            false,
-            AUTON_THETA_PID,
-            AUTON_DRIVE_PID,
-            GENERATED_AUTON_DRIVE_PID);
+            DRIVE_CONFIG,
+            m_gyro);
 
         super.setup(
             new MK4iSwerveModule(

@@ -16,6 +16,7 @@ import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.Slot2Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -315,6 +316,14 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
         config.StatorCurrentLimit = amps;
 
         m_configurator.apply(config);
+
+        TorqueCurrentConfigs config2 = new TorqueCurrentConfigs();
+        m_configurator.refresh(config2);
+
+        config2.PeakForwardTorqueCurrent = amps;
+        config2.PeakReverseTorqueCurrent = -amps;
+
+        m_configurator.apply(config2);
     }
 
     @Override

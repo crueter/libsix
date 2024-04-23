@@ -4,18 +4,15 @@
 
 package frc.lib.beaklib.drive;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import static edu.wpi.first.units.Units.Meters;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.Velocity;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
-import frc.lib.beaklib.pid.BeakPIDConstants;
+import frc.lib.beaklib.drive.swerve.DrivetrainConfiguration;
 import frc.lib.beaklib.subsystem.BeakGyroSubsystem;
 
 /** Base drivetrain class. */
@@ -27,34 +24,15 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
 
     protected double m_jerk = 0.;
 
+    protected DrivetrainConfiguration m_config;
+
     /**
      * Construct a new generic drivetrain.
      * 
-     * @param physics
-     *            A {@link RobotPhysics} object containing the
-     *            relevant
-     *            information for your robot.
-     * @param thetaPID
-     *            The PID gains for the theta controller.
-     * @param drivePID
-     *            The PID gains for the auton drive controller.
-     * @param generatedDrivePID
-     *            The PID gains for generated paths using a path generation command.
+     * @param config The drivetrain's configuration.
      */
-    public BeakDrivetrain() {
-        m_maxVelocity = physics.maxVelocity;
-        m_maxAngularVelocity = physics.maxAngularVelocity;
-        m_maxAccel = physics.maxAccel;
-
-        m_trackWidth = physics.trackWidth;
-        m_wheelBase = physics.wheelBase;
-        m_wheelDiameter = physics.wheelDiameter;
-
-        m_gearRatio = physics.driveGearRatio;
-        m_feedForward = physics.feedforward;
-
-        final TrapezoidProfile.Constraints thetaConstraints = new TrapezoidProfile.Constraints(
-            physics.maxAngularVelocity.in(), physics.maxAngularVelocity.in());
+    public BeakDrivetrain(DrivetrainConfiguration config) {
+        m_config = config;
     }
 
     public void configMotors() {
@@ -74,6 +52,14 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
      *            the field, for holonomic drivetrains.
      */
     public void drive(double x, double y, double rot, boolean fieldRelative) {
+        x *= m_config.MaxSpeed;
+        y *= m_config.MaxSpeed;
+        rot *= m_config.MaxAngularVelocity;
+
+        ChassisSpeeds speeds = fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(x, y, rot, getRotation2d())
+                : new ChassisSpeeds(x, y, rot);
+
+        drive(speeds);
     }
 
     /**
@@ -162,15 +148,15 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
      * React, the blue alliance HP station)
      * 
      * @param x
-     *            The X position of the target, in inches.
+     *            The X position of the target.
      * @param y
-     *            The Y position of the target, in inches.
+     *            The Y position of the target.
      * @return A {@link Rotation2d} of the drivetrain's angle to the target
      *         position.
      */
-    public Rotation2d getAngleToTargetPosition(Distance x, Distance y) {
-        double xDelta = x.getAsMeters() - getPoseMeters().getX();
-        double yDelta = y.getAsMeters() - getPoseMeters().getY();
+    public Rotation2d getAngleToTargetPosition(Measure<Distance> x, Measure<Distance> y) {
+        double xDelta = x.in(Meters) - getPoseMeters().getX();
+        double yDelta = y.in(Meters) - getPoseMeters().getY();
 
         double radiansToTarget = Math.atan2(yDelta, xDelta);
 
