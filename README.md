@@ -14,3 +14,4 @@ TODO:::::::::
 - [ ] look forward to prevent slips and such
 - [ ] Collision detection; ignore odometry
 - [ ] Slip detection
+- [ ] Real feedforward

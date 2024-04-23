@@ -77,8 +77,6 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final double DRIVE_RATIO = 1 / ((14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0));
     private static final double TURN_RATIO = (150.0 / 7.0);
 
-    private static SwerveDrivetrain m_instance;
-
     private Field2d m_field = new Field2d();
 
     // MODULES
@@ -184,13 +182,6 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
             m_visionMeasurementStdDevs);
     }
 
-    public static SwerveDrivetrain getInstance() {
-        if (m_instance == null) {
-            m_instance = new SwerveDrivetrain();
-        }
-        return m_instance;
-    }
-
     @Override
     public void periodic() {
         super.periodic();
@@ -210,5 +201,10 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
         SmartDashboard.putNumber("Heading (deg)", getHeading());
 
         SmartDashboard.putNumber("Velocity", super.getForwardVelocity());
+    }
+
+    @Override
+    public void simulationPeriodic() {
+        updateSimState(0.020, 12.0);
     }
 }

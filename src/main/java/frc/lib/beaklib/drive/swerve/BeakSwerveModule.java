@@ -21,7 +21,7 @@ public class BeakSwerveModule {
 
     protected BeakMotorController m_driveMotor;
     protected BeakMotorController m_steerMotor;
-    protected BeakAbsoluteEncoder m_turningEncoder;
+    protected BeakAbsoluteEncoder m_steerEncoder;
 
     public enum DriveRequestType {
         VelocityFOC,
@@ -55,7 +55,7 @@ public class BeakSwerveModule {
             BeakAbsoluteEncoder turningEncoder) {
         m_driveMotor = driveMotor;
         m_steerMotor = turningMotor;
-        m_turningEncoder = turningEncoder;
+        m_steerEncoder = turningEncoder;
 
         configTurningEncoder();
         configTurningMotor();
@@ -99,10 +99,23 @@ public class BeakSwerveModule {
     }
 
     public void configTurningEncoder() {
-        m_turningEncoder.setAbsoluteOffset(Config.AngleOffset);
+        m_steerEncoder.setAbsoluteOffset(Config.AngleOffset);
 
         // Prevent huge CAN spikes
-        m_turningEncoder.setDataFramePeriod(101);
+        m_steerEncoder.setDataFramePeriod(101);
+    }
+
+    /* Bruh */
+    public BeakMotorController getDriveMotor() {
+        return m_driveMotor;
+    }
+
+    public BeakMotorController getSteerMotor() {
+        return m_steerMotor;
+    }
+
+    public BeakAbsoluteEncoder getSteerEncoder() {
+        return m_steerEncoder;
     }
 
     /* State Management */
@@ -146,7 +159,7 @@ public class BeakSwerveModule {
      * @return Angle of the wheel in radians.
      */
     public double getAbsoluteEncoderRadians() {
-        double angle = m_turningEncoder.getAbsoluteEncoderPosition(false).Value.getRadians();
+        double angle = m_steerEncoder.getAbsoluteEncoderPosition(false).Value.getRadians();
         angle %= 2.0 * Math.PI;
         if (angle < 0.0) {
             angle += 2.0 * Math.PI;

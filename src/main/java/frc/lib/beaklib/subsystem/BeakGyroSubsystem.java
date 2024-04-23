@@ -18,7 +18,9 @@ public class BeakGyroSubsystem extends SubsystemBase {
     protected AnalogGyroSim m_gyroSim;
 
     public BeakGyroSubsystem() {
+        m_gyroSim = new AnalogGyroSim(0);
     }
+    
     /**
      * Gets the gyro's reported angle.
      * 

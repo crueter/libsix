@@ -24,6 +24,7 @@ import frc.lib.beaklib.drive.swerve.requests.BeakSwerveIdle;
 import frc.lib.beaklib.drive.swerve.requests.BeakSwerveRequest;
 import frc.lib.beaklib.drive.swerve.requests.BeakSwerveRequest.SwerveControlRequestParameters;
 import frc.lib.beaklib.gyro.BeakGyro;
+import frc.lib.beaklib.gyro.BeakV6Pigeon2;
 
 /** Generic Swerve Drivetrain subsystem. */
 public class BeakSwerveDrivetrain extends BeakDrivetrain {
@@ -47,6 +48,8 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
     protected BeakSwerveRequest m_currentRequest = new BeakSwerveIdle();
     protected SwerveControlRequestParameters m_requestParameters = new SwerveControlRequestParameters();
 
+    protected BeakSwerveSim m_simDrive;
+
     /**
      * Create a new Swerve drivetrain.
      * 
@@ -59,10 +62,6 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
         super(config);
 
         m_gyro = gyro;
-
-        m_requestParameters.kinematics = m_kinematics;
-        m_requestParameters.swervePositions = getModuleLocations();
-        m_requestParameters.updatePeriod = 20.0;
     }
 
     public void setup(BeakSwerveModule... modules) {
@@ -79,11 +78,18 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
 
         m_odom = new SwerveDrivePoseEstimator(m_kinematics, getGyroRotation2d(), getModulePositions(), new Pose2d());
 
+        m_requestParameters.kinematics = m_kinematics;
+        m_requestParameters.swervePositions = getModuleLocations();
+        m_requestParameters.updatePeriod = 20.0;
+
+        m_simDrive = new BeakSwerveSim(getModuleLocations(), (BeakV6Pigeon2) m_gyro, m_config, m_modules);
+
         resetTurningMotors();
     }
 
     /**
      * Set the next requested control type.
+     * 
      * @param request The {@link BeakSwerveRequest} to apply.
      */
     public void setControl(BeakSwerveRequest request) {
@@ -125,6 +131,17 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
     @Override
     public void drive(ChassisSpeeds speeds) {
         setControl(m_chassisSpeedsDrive.withSpeeds(speeds));
+    }
+
+    /**
+     * Updates all the simulation state variables for this
+     * drivetrain class. User provides the update variables for the simulation.
+     *
+     * @param dtSeconds     time since last update call
+     * @param supplyVoltage voltage as seen at the motor controllers
+     */
+    public void updateSimState(double dtSeconds, double supplyVoltage) {
+        m_simDrive.update(dtSeconds, supplyVoltage, m_modules);
     }
 
     /* Swerve-specific Methods */
