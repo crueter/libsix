@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import frc.lib.beaklib.encoder.BeakAbsoluteEncoder;
 import frc.lib.beaklib.motor.BeakMotorController;
 
@@ -19,8 +20,20 @@ public class BeakSwerveModule {
     public SwerveModuleConfiguration Config;
 
     protected BeakMotorController m_driveMotor;
-    protected BeakMotorController m_turningMotor;
+    protected BeakMotorController m_steerMotor;
     protected BeakAbsoluteEncoder m_turningEncoder;
+
+    public enum DriveRequestType {
+        VelocityFOC,
+        Velocity,
+        VoltageFOC,
+        Voltage
+    }
+
+    public enum SteerRequestType {
+        MotionMagic,
+        MotionMagicFOC
+    }
 
     /**
      * Construct a new Swerve Module.
@@ -41,7 +54,7 @@ public class BeakSwerveModule {
             BeakMotorController turningMotor,
             BeakAbsoluteEncoder turningEncoder) {
         m_driveMotor = driveMotor;
-        m_turningMotor = turningMotor;
+        m_steerMotor = turningMotor;
         m_turningEncoder = turningEncoder;
 
         configTurningEncoder();
@@ -67,10 +80,10 @@ public class BeakSwerveModule {
     }
 
     public void configTurningMotor() {
-        m_turningMotor.setEncoderGearRatio(Config.DriveConfig.TurnRatio);
+        m_steerMotor.setEncoderGearRatio(Config.DriveConfig.TurnRatio);
 
-        m_turningMotor.setBrake(true);
-        m_turningMotor.setInverted(Config.TurnInverted);
+        m_steerMotor.setBrake(true);
+        m_steerMotor.setInverted(Config.TurnInverted);
 
         // Initialize the encoder's position--MUST BE DONE AFTER
         // m_configURING TURNING ENCODER!
@@ -78,11 +91,11 @@ public class BeakSwerveModule {
 
         // Generally, turning motor current draw isn't a problem.
         // This is done to prevent stalls from killing the motor.
-        m_turningMotor.setSupplyCurrentLimit(Config.DriveConfig.TurnCurrentLimit);
+        m_steerMotor.setSupplyCurrentLimit(Config.DriveConfig.TurnCurrentLimit);
 
-        m_turningMotor.setVoltageCompensationSaturation(0.);
+        m_steerMotor.setVoltageCompensationSaturation(0.);
 
-        m_turningMotor.setPID(Config.DriveConfig.TurnPID);
+        m_steerMotor.setPID(Config.DriveConfig.TurnPID);
     }
 
     public void configTurningEncoder() {
@@ -123,7 +136,7 @@ public class BeakSwerveModule {
      * angle from the CANCoder.
      */
     public void resetTurningMotor() {
-        m_turningMotor.setEncoderPositionMotorRotations(
+        m_steerMotor.setEncoderPositionMotorRotations(
                 Math.toDegrees(getAbsoluteEncoderRadians()) / 360.0);
     }
 
@@ -143,7 +156,7 @@ public class BeakSwerveModule {
     }
 
     public double getTurningEncoderRadians() {
-        double angle = m_turningMotor.getAngle(false).Value.getRadians();
+        double angle = m_steerMotor.getAngle(false).Value.getRadians();
 
         angle %= 2.0 * Math.PI;
         if (angle < 0.0) {
@@ -158,27 +171,64 @@ public class BeakSwerveModule {
      */
     public void resetEncoders() {
         m_driveMotor.setEncoderPositionNU(0);
-        m_turningMotor.setEncoderPositionNU(0);
+        m_steerMotor.setEncoderPositionNU(0);
     }
 
-    // /**
-    //  * Set the wheel's angle.
-    //  * 
-    //  * @param newAngle
-    //  *                 Angle to turn the wheel to, in degrees.
-    //  */
-    // public void setAngle(double newAngle) {
-    //     // Does some funky stuff to do the cool thing
-    //     double currentSensorPosition = m_turningMotor.getPositionMotorRotations(false).Value * 360.0;
-    //     double remainder = Math.IEEEremainder(currentSensorPosition, 360.0);
-    //     double newAngleDemand = newAngle + currentSensorPosition - remainder;
+    /**
+     * Applies the desired SwerveModuleState to this module.
+     *
+     * @param state            Speed and direction the module should target
+     * @param driveRequestType The {@link DriveRequestType} to apply
+     */
+    public void apply(SwerveModuleState state, DriveRequestType driveRequestType) {
+        apply(state, driveRequestType, SteerRequestType.MotionMagic);
+    }
 
-    //     if (newAngleDemand - currentSensorPosition > 180.1) {
-    //         newAngleDemand -= 360.0;
-    //     } else if (newAngleDemand - currentSensorPosition < -180.1) {
-    //         newAngleDemand += 360.0;
-    //     }
+    /**
+     * Applies the desired SwerveModuleState to this module.
+     *
+     * @param state            Speed and direction the module should target
+     * @param driveRequestType The {@link DriveRequestType} to apply
+     * @param steerRequestType The {@link SteerRequestType} to apply; defaults to {@link SteerRequestType#MotionMagic}
+     */
+    public void apply(SwerveModuleState state, DriveRequestType driveRequestType, SteerRequestType steerRequestType) {
+        var optimized = SwerveModuleState.optimize(state, m_steerMotor.getAngle(true).Value);
 
-    //     m_turningMotor.setPositionMotorRotations(newAngleDemand / 360.0);
-    // }
+        double angleToSetDeg = optimized.angle.getRotations();
+        switch (steerRequestType) {
+            // TODO: Implement FOC
+            case MotionMagic:
+            case MotionMagicFOC:
+                m_steerMotor.setMotionMagicAngle(Rotation2d.fromDegrees(angleToSetDeg));
+                break;
+        }
+
+        double velocityToSet = optimized.speedMetersPerSecond;
+
+        /* From FRC 900's whitepaper, we add a cosine compensator to the applied drive velocity */
+        /* To reduce the "skew" that occurs when changing direction */
+        double steerMotorError = angleToSetDeg - m_steerMotor.getAngle(true).Value.getDegrees();
+
+        /* If error is close to 0 rotations, we're already there, so apply full power */
+        /* If the error is close to 0.25 rotations, then we're 90 degrees, so movement doesn't help us at all */
+        double cosineScalar = Math.cos(Units.rotationsToRadians(steerMotorError));
+        
+        /* Make sure we don't invert our drive, even though we shouldn't ever target over 90 degrees anyway */
+        if (cosineScalar < 0.0) {
+            cosineScalar = 0.0;
+        }
+        velocityToSet *= cosineScalar;
+
+        switch (driveRequestType) {
+            case Voltage:
+            case VoltageFOC:
+                m_driveMotor.setVoltage(velocityToSet / Config.DriveConfig.MaxSpeed * 12.0);
+                break;
+
+            case Velocity:
+            case VelocityFOC:
+                m_driveMotor.setVelocity(MetersPerSecond.of(velocityToSet));
+                break;
+        }
+    }
 }

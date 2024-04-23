@@ -6,6 +6,7 @@ package frc.lib.beaklib.drive.swerve;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -16,8 +17,12 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import frc.lib.beaklib.drive.BeakDrivetrain;
-
+import frc.lib.beaklib.drive.swerve.requests.BeakChassisSpeedsDrive;
+import frc.lib.beaklib.drive.swerve.requests.BeakSwerveIdle;
+import frc.lib.beaklib.drive.swerve.requests.BeakSwerveRequest;
+import frc.lib.beaklib.drive.swerve.requests.BeakSwerveRequest.SwerveControlRequestParameters;
 import frc.lib.beaklib.gyro.BeakGyro;
 
 /** Generic Swerve Drivetrain subsystem. */
@@ -37,17 +42,27 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
     protected SwerveDrivePoseEstimator m_odom;
     protected SwerveDriveKinematics m_kinematics;
 
+    protected BeakChassisSpeedsDrive m_chassisSpeedsDrive = new BeakChassisSpeedsDrive();
+
+    protected BeakSwerveRequest m_currentRequest = new BeakSwerveIdle();
+    protected SwerveControlRequestParameters m_requestParameters = new SwerveControlRequestParameters();
+
     /**
      * Create a new Swerve drivetrain.
+     * 
      * @param gyro
-     *            The gyroscope used by this drivetrain.
+     *             The gyroscope used by this drivetrain.
      */
     public BeakSwerveDrivetrain(
-        DrivetrainConfiguration config,
-        BeakGyro gyro) {
+            DrivetrainConfiguration config,
+            BeakGyro gyro) {
         super(config);
 
         m_gyro = gyro;
+
+        m_requestParameters.kinematics = m_kinematics;
+        m_requestParameters.swervePositions = getModuleLocations();
+        m_requestParameters.updatePeriod = 20.0;
     }
 
     public void setup(BeakSwerveModule... modules) {
@@ -67,12 +82,20 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
         resetTurningMotors();
     }
 
+    /**
+     * Set the next requested control type.
+     * @param request The {@link BeakSwerveRequest} to apply.
+     */
+    public void setControl(BeakSwerveRequest request) {
+        m_currentRequest = request;
+    }
+
     @Override
     public Pose2d updateOdometry() {
         m_pose = m_odom.updateWithTime(
-            RobotController.getFPGATime() / 1000000.,
-            getGyroRotation2d(),
-            getModulePositions());
+                RobotController.getFPGATime() / 1000000.,
+                getGyroRotation2d(),
+                getModulePositions());
 
         return m_pose;
     }
@@ -82,8 +105,8 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
         Transform2d poseError = estimatedPose.minus(m_odom.getEstimatedPosition());
 
         if (!estimatedPose.equals(new Pose2d()) && !estimatedPose.equals(getPoseMeters()) &&
-            Math.abs(poseError.getX()) < 0.5 &&
-            Math.abs(poseError.getY()) < 0.5) {
+                Math.abs(poseError.getX()) < 0.5 &&
+                Math.abs(poseError.getY()) < 0.5) {
             m_odom.addVisionMeasurement(estimatedPose, timestamp);
         }
     }
@@ -98,29 +121,13 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
         if (!pose.equals(new Pose2d()))
             m_odom.resetPosition(getGyroRotation2d(), getModulePositions(), pose);
     }
-    
+
     @Override
     public void drive(ChassisSpeeds speeds) {
-        SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(speeds);
-
-        setModuleStates(states);
+        setControl(m_chassisSpeedsDrive.withSpeeds(speeds));
     }
 
     /* Swerve-specific Methods */
-
-    /**
-     * Set each module's {@link SwerveModuleState}.
-     * 
-     * @param desiredStates
-     *            An array of the desired states for the m_modules.
-     */
-    public void setModuleStates(SwerveModuleState[] desiredStates) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, m_config.MaxSpeed);
-
-        for (int i = 0; i < desiredStates.length; i++) {
-            // m_modules.get(i).setDesiredState(desiredStates[i]);
-        }
-    }
 
     /**
      * Get the states of each module.
@@ -148,6 +155,20 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
         }
 
         return states;
+    }
+
+    /**
+     * Get the locations of each module.
+     * 
+     * @return Array of {@link Translation2d}s for each module.
+     */
+    public Translation2d[] getModuleLocations() {
+        Translation2d[] locations = new Translation2d[m_numModules];
+        for (int i = 0; i < m_numModules; i++) {
+            locations[i] = m_modules.get(i).Config.ModuleLocation;
+        }
+
+        return locations;
     }
 
     /**
@@ -192,7 +213,7 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
 
     private ChassisSpeeds getChassisSpeeds() {
         return m_kinematics.toChassisSpeeds(
-            getModuleStates());
+                getModuleStates());
     }
 
     /**
@@ -229,7 +250,15 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
     @Override
     public void periodic() {
         super.periodic();
-        
+
         updateOdometry();
+
+        m_requestParameters.currentPose = m_odom.getEstimatedPosition();
+        m_requestParameters.currentChassisSpeed = getChassisSpeeds();
+        m_requestParameters.timestamp = Timer.getFPGATimestamp();
+
+        if (m_currentRequest != null) {
+            m_currentRequest.apply(m_requestParameters, m_modules);
+        }
     }
 }
