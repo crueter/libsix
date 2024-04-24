@@ -17,14 +17,14 @@ import com.ctre.phoenix6.configs.Slot2Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
-import com.ctre.phoenix6.controls.DutyCycleOut;
+// import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityDutyCycle;
 import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
+// import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.ForwardLimitSourceValue;
 import com.ctre.phoenix6.signals.ForwardLimitTypeValue;
@@ -37,6 +37,7 @@ import com.ctre.phoenix6.signals.ReverseLimitValue;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.beaklib.pid.BeakPIDConstants;
 
 /** Add your docs here. */
@@ -44,8 +45,8 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     private TalonFXConfigurator m_configurator;
     private TalonFXConfiguration m_config = new TalonFXConfiguration();
 
-    private DutyCycleOut m_dutyCycleOut = new DutyCycleOut(0.);
-    private VoltageOut m_voltageOut = new VoltageOut(0.);
+    // private DutyCycleOut m_dutyCycleOut = new DutyCycleOut(0.);
+    // private VoltageOut m_voltageOut = new VoltageOut(0.);
     private VelocityDutyCycle m_velocityOut = new VelocityDutyCycle(0.);
     private VelocityVoltage m_velocityVoltage = new VelocityVoltage(0.);
     private PositionDutyCycle m_positionOut = new PositionDutyCycle(0.);
@@ -71,6 +72,14 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
 
     public BeakV6TalonFX(int port) {
         this(port, "");
+    }
+
+    @Override
+    public void setVoltage(double volts) {
+        super.setVoltage(volts);
+
+        SmartDashboard.putNumber("Input volts " + getDeviceID(), volts);
+        SmartDashboard.putNumber("Output volts " + getDeviceID(), super.getMotorVoltage().getValueAsDouble());
     }
 
     @Override
@@ -342,6 +351,7 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     @Override
     public void setVoltageCompensationSaturation(double saturation) {
         m_voltageCompEnabled = saturation != 0.;
+        System.err.println(saturation != 0.0);
     }
 
     @Override
@@ -362,17 +372,6 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
         config.MotionMagicAcceleration = accel;
 
         m_configurator.apply(config);
-    }
-
-    @Override
-    public void set(double percentOutput) {
-        if (m_voltageCompEnabled) {
-            super.setControl(m_voltageOut
-            .withOutput(percentOutput * getSuppliedVoltage().Value + m_arbFeedforward));
-        } else {
-            super.setControl(m_dutyCycleOut
-            .withOutput(percentOutput + m_arbFeedforward / 12.));
-        }
     }
 
     @Override

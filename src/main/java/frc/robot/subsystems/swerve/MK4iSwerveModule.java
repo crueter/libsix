@@ -13,15 +13,16 @@ import frc.lib.beaklib.motor.BeakV6TalonFX;
 public class MK4iSwerveModule extends BeakSwerveModule {
     public MK4iSwerveModule(
         int driveMotorPort,
-        int turnMotorPort,
+        int steerMotorPort,
         int encoderPort,
         SwerveModuleConfiguration config) {
         super(config);
 
         BeakV6TalonFX driveMotor = new BeakV6TalonFX(driveMotorPort, config.DriveConfig.CANBus);
-        BeakV6TalonFX turnMotor = new BeakV6TalonFX(turnMotorPort, config.DriveConfig.CANBus);
-        BeakV6CANCoder turnEncoder = new BeakV6CANCoder(encoderPort, config.DriveConfig.CANBus);
+        BeakV6TalonFX steerMotor = new BeakV6TalonFX(steerMotorPort, config.DriveConfig.CANBus);
 
-        super.setup(driveMotor, turnMotor, turnEncoder);
+        BeakV6CANCoder steerEncoder = new BeakV6CANCoder(encoderPort, config.DriveConfig.CANBus);
+
+        super.setup(driveMotor, steerMotor, steerEncoder);
     }
 }

@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.beaklib.drive.BeakDrivetrain;
+import frc.lib.beaklib.drive.swerve.BeakSwerveModule.DriveRequestType;
 import frc.lib.beaklib.drive.swerve.requests.BeakChassisSpeedsDrive;
 import frc.lib.beaklib.drive.swerve.requests.BeakSwerveIdle;
 import frc.lib.beaklib.drive.swerve.requests.BeakSwerveRequest;
@@ -44,7 +45,7 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
     protected SwerveDrivePoseEstimator m_odom;
     protected SwerveDriveKinematics m_kinematics;
 
-    protected BeakChassisSpeedsDrive m_chassisSpeedsDrive = new BeakChassisSpeedsDrive();
+    protected BeakChassisSpeedsDrive m_chassisSpeedsDrive = new BeakChassisSpeedsDrive().withDriveRequestType(DriveRequestType.Voltage);
 
     protected BeakSwerveRequest m_currentRequest = new BeakSwerveIdle();
     protected SwerveControlRequestParameters m_requestParameters = new SwerveControlRequestParameters();

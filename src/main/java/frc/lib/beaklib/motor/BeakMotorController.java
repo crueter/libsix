@@ -496,15 +496,6 @@ public interface BeakMotorController extends MotorController {
      */
     public void setMotionMagicAcceleration(double accel);
 
-    /**
-     * Set the motor controller's speed, in range [-1.0, 1.0], with an arbitrary
-     * feed forward.
-     * 
-     * @param percentOutput
-     *                      Percent output to pass to the motor controller.
-     */
-    public void set(double percentOutput);
-
     /* CONVERSION API */
 
     /**

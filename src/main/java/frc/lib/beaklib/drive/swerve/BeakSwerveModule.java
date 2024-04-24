@@ -71,6 +71,7 @@ public class BeakSwerveModule {
 
         // Prevent the motors from drawing several hundred amps of current,
         // and allow them to run at the same speed even when voltage drops.
+        // System.err.println(Config.DriveInverted);
         m_driveMotor.setVoltageCompensationSaturation(12.0);
         m_driveMotor.setSupplyCurrentLimit(Config.DriveConfig.DriveSupplyLimit);
         m_driveMotor.setStatorCurrentLimit(Config.DriveConfig.DriveStatorLimit);
@@ -86,7 +87,7 @@ public class BeakSwerveModule {
         m_steerMotor.setInverted(Config.SteerInverted);
 
         // Initialize the encoder's position--MUST BE DONE AFTER
-        // m_configURING TURNING ENCODER!
+        // CONFIGURING TURNING ENCODER!
         resetTurningMotor();
 
         // Generally, turning motor current draw isn't a problem.
@@ -94,9 +95,9 @@ public class BeakSwerveModule {
         m_steerMotor.setSupplyCurrentLimit(Config.DriveConfig.SteerCurrentLimit);
 
         m_steerMotor.setMotionMagicCruiseVelocity(100.0 / Config.DriveConfig.SteerRatio);
-        m_steerMotor.setMotionMagicAcceleration(100.0 / Config.DriveConfig.SteerRatio);
+        m_steerMotor.setMotionMagicAcceleration(1000.0 / Config.DriveConfig.SteerRatio);
 
-        m_steerMotor.setVoltageCompensationSaturation(0.);
+        // m_steerMotor.setVoltageCompensationSaturation(0.);
 
         m_steerMotor.setPID(Config.DriveConfig.TurnPID);
     }

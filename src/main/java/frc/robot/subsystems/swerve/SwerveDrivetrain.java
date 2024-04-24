@@ -47,16 +47,11 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final Vector<N3> m_visionMeasurementStdDevs = VecBuilder.fill(0.1, 0.1,
         Units.degreesToRadians(25));
 
-    private static final BeakPIDConstants DRIVE_PID = new BeakPIDConstants(0.0, 0.0, 0.0, 0.0, 0.0);
-    private static final BeakPIDConstants TURN_PID = new BeakPIDConstants(10.0).withkV(1.0);
+    private static final BeakPIDConstants DRIVE_PID = new BeakPIDConstants(0.05, 0.0, 0.0, 0.1, 0.2);
+    private static final BeakPIDConstants TURN_PID = new BeakPIDConstants(1.0).withkV(1.0);
 
     private static final int PIGEON2_ID = 0;
     private static final String CAN_BUS = "rio";
-
-    // private static final SimpleMotorFeedforward FEED_FORWARD = new SimpleMotorFeedforward(
-    //     (.2212 + .151 + .163) / 3.,
-    //     (2.3 + 2.32 + 2.33) / 3.,
-    //     (.421 + .849 + .708) / 3.);
 
     private static final double MAX_VELOCITY = 6.0;
     private static final double MAX_ACCEL = 6.0;

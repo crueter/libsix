@@ -128,14 +128,14 @@ public class BeakSwerveSim {
             m_modules[i].DriveMotor.update(dtSeconds);
 
             steerMotor.setRawRotorPosition(m_modules[i].SteerMotor.getAngularPositionRotations() * m_modules[i].SteerGearing);
-            steerMotor.setRotorVelocity(m_modules[i].SteerMotor.getAngularVelocityRPM() / 60.0 * m_modules[i].SteerGearing);
+            // steerMotor.setRotorVelocity(m_modules[i].SteerMotor.getAngularVelocityRPM() / 60.0 * m_modules[i].SteerGearing);
 
             /* CANcoders see the mechanism, so don't account for the steer gearing */
             cancoder.setRawPosition(m_modules[i].SteerMotor.getAngularPositionRotations());
             cancoder.setVelocity(m_modules[i].SteerMotor.getAngularVelocityRPM() / 60.0);
 
             driveMotor.setRawRotorPosition(m_modules[i].DriveMotor.getAngularPositionRotations() * m_modules[i].DriveGearing);
-            driveMotor.setRotorVelocity(m_modules[i].DriveMotor.getAngularVelocityRPM() / 60.0 * m_modules[i].DriveGearing);
+            // driveMotor.setRotorVelocity(m_modules[i].DriveMotor.getAngularVelocityRPM() / 60.0);// * m_modules[i].DriveGearing);
 
             states[i] = modulesToApply.get(i).getState();
         }
