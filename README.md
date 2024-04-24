@@ -3,8 +3,8 @@
 TODO:::::::::
 
 - [x] work
-- [ ] support FoC
-- [ ] create motor control requests
+- [x] support FoC
+- [x] create motor control requests
 - [ ] motor config requests/classes
 - [x] swerve control requests
     - [ ] Facing Angle
@@ -16,3 +16,7 @@ TODO:::::::::
 - [ ] Slip detection
 - [ ] Real feedforward
 - [ ] Standardized Simulation
+- [ ] Differential drivetrain requests
+- [ ] TorqueCurrent output
+- [ ] More clean API for duty vs voltage vs torque
+- [ ] General cleanup of old stuff

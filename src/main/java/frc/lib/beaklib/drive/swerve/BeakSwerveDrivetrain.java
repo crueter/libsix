@@ -45,7 +45,7 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
     protected SwerveDrivePoseEstimator m_odom;
     protected SwerveDriveKinematics m_kinematics;
 
-    protected BeakChassisSpeedsDrive m_chassisSpeedsDrive = new BeakChassisSpeedsDrive().withDriveRequestType(DriveRequestType.Voltage);
+    protected BeakChassisSpeedsDrive m_chassisSpeedsDrive = new BeakChassisSpeedsDrive().withDriveRequestType(DriveRequestType.VoltageFOC);
 
     protected BeakSwerveRequest m_currentRequest = new BeakSwerveIdle();
     protected SwerveControlRequestParameters m_requestParameters = new SwerveControlRequestParameters();

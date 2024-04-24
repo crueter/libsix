@@ -14,6 +14,9 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import frc.lib.beaklib.encoder.BeakAbsoluteEncoder;
 import frc.lib.beaklib.motor.BeakMotorController;
+import frc.lib.beaklib.motor.requests.BeakVoltage;
+import frc.lib.beaklib.motor.requests.motionmagic.BeakMotionMagicAngle;
+import frc.lib.beaklib.motor.requests.velocity.BeakVelocity;
 
 /** Base class for any non-differential swerve module. */
 public class BeakSwerveModule {
@@ -34,6 +37,10 @@ public class BeakSwerveModule {
         MotionMagic,
         MotionMagicFOC
     }
+
+    protected BeakMotionMagicAngle m_motionMagicAngle = new BeakMotionMagicAngle();
+    protected BeakVelocity m_velocity = new BeakVelocity();
+    protected BeakVoltage m_voltage = new BeakVoltage();
 
     /**
      * Construct a new Swerve Module.
@@ -206,7 +213,8 @@ public class BeakSwerveModule {
      *
      * @param state            Speed and direction the module should target
      * @param driveRequestType The {@link DriveRequestType} to apply
-     * @param steerRequestType The {@link SteerRequestType} to apply; defaults to {@link SteerRequestType#MotionMagic}
+     * @param steerRequestType The {@link SteerRequestType} to apply; defaults to
+     *                         {@link SteerRequestType#MotionMagic}
      */
     public void apply(SwerveModuleState state, DriveRequestType driveRequestType, SteerRequestType steerRequestType) {
         var optimized = SwerveModuleState.optimize(state, m_steerMotor.getAngle(true).Value);
@@ -215,36 +223,53 @@ public class BeakSwerveModule {
         switch (steerRequestType) {
             // TODO: Implement FOC
             case MotionMagic:
+                m_steerMotor.setControl(m_motionMagicAngle.withAngle(Rotation2d.fromDegrees(angleToSetDeg)));
+                break;
             case MotionMagicFOC:
-                m_steerMotor.setMotionMagicAngle(Rotation2d.fromDegrees(angleToSetDeg));
+                m_steerMotor.setControl(
+                        m_motionMagicAngle.withAngle(Rotation2d.fromDegrees(angleToSetDeg)).withUseFOC(true));
                 break;
         }
 
         double velocityToSet = optimized.speedMetersPerSecond;
 
-        /* From FRC 900's whitepaper, we add a cosine compensator to the applied drive velocity */
+        /*
+         * From FRC 900's whitepaper, we add a cosine compensator to the applied drive
+         * velocity
+         */
         /* To reduce the "skew" that occurs when changing direction */
         double steerMotorError = angleToSetDeg - m_steerMotor.getAngle(true).Value.getDegrees();
 
         /* If error is close to 0 rotations, we're already there, so apply full power */
-        /* If the error is close to 0.25 rotations, then we're 90 degrees, so movement doesn't help us at all */
+        /*
+         * If the error is close to 0.25 rotations, then we're 90 degrees, so movement
+         * doesn't help us at all
+         */
         double cosineScalar = Math.cos(Units.rotationsToRadians(steerMotorError));
-        
-        /* Make sure we don't invert our drive, even though we shouldn't ever target over 90 degrees anyway */
+
+        /*
+         * Make sure we don't invert our drive, even though we shouldn't ever target
+         * over 90 degrees anyway
+         */
         if (cosineScalar < 0.0) {
             cosineScalar = 0.0;
         }
         velocityToSet *= cosineScalar;
 
+        double volts = velocityToSet / Config.DriveConfig.MaxSpeed * 12.0;
+
         switch (driveRequestType) {
             case Voltage:
-            case VoltageFOC:
-                m_driveMotor.setVoltage(velocityToSet / Config.DriveConfig.MaxSpeed * 12.0);
+                m_driveMotor.setControl(m_voltage.withVoltage(volts));
                 break;
-
+            case VoltageFOC:
+                m_driveMotor.setControl(m_voltage.withVoltage(volts).withUseFOC(true));
+                break;
             case Velocity:
+                m_driveMotor.setControl(m_velocity.withVelocity(MetersPerSecond.of(velocityToSet)));
+                break;
             case VelocityFOC:
-                m_driveMotor.setVelocity(MetersPerSecond.of(velocityToSet));
+                m_driveMotor.setControl(m_velocity.withVelocity(MetersPerSecond.of(velocityToSet)).withUseFOC(true));
                 break;
         }
     }
