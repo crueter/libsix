@@ -13,7 +13,7 @@ public class SwerveModuleConfiguration {
     public final Translation2d ModuleLocation;
 
     public final boolean DriveInverted;
-    public final boolean TurnInverted;
+    public final boolean SteerInverted;
 
     public final DrivetrainConfiguration DriveConfig;
 
@@ -48,6 +48,6 @@ public class SwerveModuleConfiguration {
         this.ModuleLocation = moduleLocation;
 
         this.DriveInverted = driveInverted;
-        this.TurnInverted = turnInverted;
+        this.SteerInverted = turnInverted;
     }
 }

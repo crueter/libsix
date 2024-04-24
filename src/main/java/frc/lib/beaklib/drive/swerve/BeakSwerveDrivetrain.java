@@ -18,6 +18,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.lib.beaklib.drive.swerve.requests.BeakChassisSpeedsDrive;
 import frc.lib.beaklib.drive.swerve.requests.BeakSwerveIdle;
@@ -80,7 +81,7 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
 
         m_requestParameters.kinematics = m_kinematics;
         m_requestParameters.swervePositions = getModuleLocations();
-        m_requestParameters.updatePeriod = 20.0;
+        m_requestParameters.updatePeriod = 1.0 / 50.0;
 
         m_simDrive = new BeakSwerveSim(getModuleLocations(), (BeakV6Pigeon2) m_gyro, m_config, m_modules);
 
@@ -131,6 +132,9 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
     @Override
     public void drive(ChassisSpeeds speeds) {
         setControl(m_chassisSpeedsDrive.withSpeeds(speeds));
+        SmartDashboard.putNumber("X speed", speeds.vxMetersPerSecond);
+        SmartDashboard.putNumber("Y speed", speeds.vyMetersPerSecond);
+        SmartDashboard.putNumber("Omega speed", speeds.omegaRadiansPerSecond);
     }
 
     /**
@@ -274,8 +278,8 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
         m_requestParameters.currentChassisSpeed = getChassisSpeeds();
         m_requestParameters.timestamp = Timer.getFPGATimestamp();
 
-        if (m_currentRequest != null) {
-            m_currentRequest.apply(m_requestParameters, m_modules);
-        }
+        // if (m_currentRequest != null) {
+        m_currentRequest.apply(m_requestParameters, m_modules);
+        // }
     }
 }

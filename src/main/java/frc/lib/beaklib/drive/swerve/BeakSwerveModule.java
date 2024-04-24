@@ -80,10 +80,10 @@ public class BeakSwerveModule {
     }
 
     public void configTurningMotor() {
-        m_steerMotor.setEncoderGearRatio(Config.DriveConfig.TurnRatio);
+        m_steerMotor.setEncoderGearRatio(Config.DriveConfig.SteerRatio);
 
         m_steerMotor.setBrake(true);
-        m_steerMotor.setInverted(Config.TurnInverted);
+        m_steerMotor.setInverted(Config.SteerInverted);
 
         // Initialize the encoder's position--MUST BE DONE AFTER
         // m_configURING TURNING ENCODER!
@@ -91,7 +91,10 @@ public class BeakSwerveModule {
 
         // Generally, turning motor current draw isn't a problem.
         // This is done to prevent stalls from killing the motor.
-        m_steerMotor.setSupplyCurrentLimit(Config.DriveConfig.TurnCurrentLimit);
+        m_steerMotor.setSupplyCurrentLimit(Config.DriveConfig.SteerCurrentLimit);
+
+        m_steerMotor.setMotionMagicCruiseVelocity(100.0 / Config.DriveConfig.SteerRatio);
+        m_steerMotor.setMotionMagicAcceleration(100.0 / Config.DriveConfig.SteerRatio);
 
         m_steerMotor.setVoltageCompensationSaturation(0.);
 

@@ -159,7 +159,7 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
         super.config_kP(m_slot, constants.kP);
         super.config_kI(m_slot, constants.kI);
         super.config_kD(m_slot, constants.kD);
-        super.config_kF(m_slot, constants.kF);
+        super.config_kF(m_slot, constants.kV);
     }
 
     @Override

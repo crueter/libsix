@@ -11,7 +11,7 @@ public class DrivetrainConfiguration {
     public final BeakPIDConstants DrivePID;
     public final BeakPIDConstants TurnPID;
 
-    public final int TurnCurrentLimit;
+    public final int SteerCurrentLimit;
     public final int DriveSupplyLimit;
 
     public final int DriveStatorLimit;
@@ -27,7 +27,7 @@ public class DrivetrainConfiguration {
     public final double WheelDiameter;
 
     public final double DriveRatio;
-    public final double TurnRatio;
+    public final double SteerRatio;
 
     /**
      * @param drivePID           PID constants for the drive motors
@@ -51,7 +51,7 @@ public class DrivetrainConfiguration {
             double turnRatio) {
         DrivePID = drivePID;
         TurnPID = turnPID;
-        TurnCurrentLimit = turnCurrentLimit;
+        SteerCurrentLimit = turnCurrentLimit;
         DriveSupplyLimit = driveSupplyLimit;
         DriveStatorLimit = driveStatorLimit;
         CANBus = canBus;
@@ -62,6 +62,6 @@ public class DrivetrainConfiguration {
         WheelBase = wheelBase;
         WheelDiameter = wheelDiameter;
         DriveRatio = driveRatio;
-        TurnRatio = turnRatio;
+        SteerRatio = turnRatio;
     }
 }

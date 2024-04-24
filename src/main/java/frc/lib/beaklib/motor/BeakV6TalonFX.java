@@ -165,7 +165,7 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
                 slot0Config.kP = constants.kP;
                 slot0Config.kI = constants.kI;
                 slot0Config.kD = constants.kD;
-                slot0Config.kV = constants.kF;
+                slot0Config.kV = constants.kV;
                 slot0Config.kS = constants.kS;
                 m_configurator.apply(slot0Config);
                 break;
@@ -174,7 +174,7 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
                 slot1Config.kP = constants.kP;
                 slot1Config.kI = constants.kI;
                 slot1Config.kD = constants.kD;
-                slot1Config.kV = constants.kF;
+                slot1Config.kV = constants.kV;
                 slot1Config.kS = constants.kS;
                 m_configurator.apply(slot1Config);
                 break;
@@ -183,7 +183,7 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
                 slot2Config.kP = constants.kP;
                 slot2Config.kI = constants.kI;
                 slot2Config.kD = constants.kD;
-                slot2Config.kV = constants.kF;
+                slot2Config.kV = constants.kV;
                 slot2Config.kS = constants.kS;
                 m_configurator.apply(slot2Config);
                 break;
@@ -205,7 +205,7 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
                 constants.kP = slot0Config.kP;
                 constants.kI = slot0Config.kI;
                 constants.kD = slot0Config.kD;
-                constants.kF = slot0Config.kV;
+                constants.kV = slot0Config.kV;
                 constants.kS = slot0Config.kS;
                 break;
             case 1:
@@ -213,7 +213,7 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
                 constants.kP = slot1Config.kP;
                 constants.kI = slot1Config.kI;
                 constants.kD = slot1Config.kD;
-                constants.kF = slot1Config.kV;
+                constants.kV = slot1Config.kV;
                 constants.kS = slot1Config.kS;
                 break;
             case 2:
@@ -221,7 +221,7 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
                 constants.kP = slot2Config.kP;
                 constants.kI = slot2Config.kI;
                 constants.kD = slot2Config.kD;
-                constants.kF = slot2Config.kV;
+                constants.kV = slot2Config.kV;
                 constants.kS = slot2Config.kS;
                 break;
             default:

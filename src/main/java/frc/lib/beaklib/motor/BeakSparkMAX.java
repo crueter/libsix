@@ -16,6 +16,7 @@ import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import frc.lib.beaklib.pid.BeakPIDConstants;
 
+// TODO: implement fake kS
 /** Common motor controller interface for REV Spark MAX. */
 public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
     private RelativeEncoder m_encoder;
@@ -138,7 +139,7 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
         m_pid.setP(constants.kP, m_slot);
         m_pid.setI(constants.kI, m_slot);
         m_pid.setD(constants.kD, m_slot);
-        m_pid.setFF(constants.kF, m_slot);
+        m_pid.setFF(constants.kV, m_slot);
     }
 
     @Override

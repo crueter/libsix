@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -46,8 +47,8 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final Vector<N3> m_visionMeasurementStdDevs = VecBuilder.fill(0.1, 0.1,
         Units.degreesToRadians(25));
 
-    private static final BeakPIDConstants DRIVE_PID = new BeakPIDConstants(0.03);
-    private static final BeakPIDConstants TURN_PID = new BeakPIDConstants(0.15);
+    private static final BeakPIDConstants DRIVE_PID = new BeakPIDConstants(0.0, 0.0, 0.0, 0.0, 0.0);
+    private static final BeakPIDConstants TURN_PID = new BeakPIDConstants(10.0).withkV(1.0);
 
     private static final int PIGEON2_ID = 0;
     private static final String CAN_BUS = "rio";
@@ -83,28 +84,28 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final int FL_DRIVE_ID = 2;
     private static final int FL_TURN_ID = 1;
     private static final int FL_ENCODER_ID = 1;
-    private static final Rotation2d FL_OFFSET = Rotation2d.fromDegrees(-357.4);
+    private static final Rotation2d FL_OFFSET = Rotation2d.fromDegrees(-270.0);//-357.4);
     private static final Translation2d FL_LOCATION = new Translation2d(Units.inchesToMeters(WHEEL_BASE) / 2,
-        Units.inchesToMeters(TRACK_WIDTH) / 2); // TODO: Please God BeakTranslation2d
+        Units.inchesToMeters(TRACK_WIDTH) / 2);
 
     private static final int FR_DRIVE_ID = 4;
     private static final int FR_TURN_ID = 3;
     private static final int FR_ENCODER_ID = 2;
-    private static final Rotation2d FR_OFFSET = Rotation2d.fromDegrees(-271.3);
+    private static final Rotation2d FR_OFFSET = Rotation2d.fromDegrees(90.0);//-271.3);
     private static final Translation2d FR_LOCATION = new Translation2d(Units.inchesToMeters(WHEEL_BASE) / 2,
         Units.inchesToMeters(-TRACK_WIDTH) / 2);
 
     private static final int BL_DRIVE_ID = 6;
     private static final int BL_TURN_ID = 5;
     private static final int BL_ENCODER_ID = 3;
-    private static final Rotation2d BL_OFFSET = Rotation2d.fromDegrees(-327.3);
+    private static final Rotation2d BL_OFFSET = Rotation2d.fromDegrees(90.0);//-327.3);
     private static final Translation2d BL_LOCATION = new Translation2d(Units.inchesToMeters(-WHEEL_BASE) / 2,
         Units.inchesToMeters(TRACK_WIDTH) / 2);
 
     private static final int BR_DRIVE_ID = 8;
     private static final int BR_TURN_ID = 7;
     private static final int BR_ENCODER_ID = 4;
-    private static final Rotation2d BR_OFFSET = Rotation2d.fromDegrees(-160.5);
+    private static final Rotation2d BR_OFFSET = Rotation2d.fromDegrees(-270.0);//-160.5);
     private static final Translation2d BR_LOCATION = new Translation2d(Units.inchesToMeters(-WHEEL_BASE) / 2,
         Units.inchesToMeters(-TRACK_WIDTH) / 2);
 
@@ -205,6 +206,6 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
 
     @Override
     public void simulationPeriodic() {
-        updateSimState(0.020, 12.0);
+        updateSimState(0.020, RobotController.getBatteryVoltage());
     }
 }
