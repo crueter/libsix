@@ -15,3 +15,4 @@ TODO:::::::::
 - [ ] Collision detection; ignore odometry
 - [ ] Slip detection
 - [ ] Real feedforward
+- [ ] Standardized Simulation

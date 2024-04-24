@@ -17,6 +17,7 @@ import com.ctre.phoenix6.configs.Slot2Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 // import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -24,6 +25,7 @@ import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityDutyCycle;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 // import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.ForwardLimitSourceValue;
@@ -37,7 +39,6 @@ import com.ctre.phoenix6.signals.ReverseLimitValue;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.beaklib.pid.BeakPIDConstants;
 
 /** Add your docs here. */
@@ -45,8 +46,8 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     private TalonFXConfigurator m_configurator;
     private TalonFXConfiguration m_config = new TalonFXConfiguration();
 
-    // private DutyCycleOut m_dutyCycleOut = new DutyCycleOut(0.);
-    // private VoltageOut m_voltageOut = new VoltageOut(0.);
+    private DutyCycleOut m_dutyCycleOut = new DutyCycleOut(0.);
+    private VoltageOut m_voltageOut = new VoltageOut(0.);
     private VelocityDutyCycle m_velocityOut = new VelocityDutyCycle(0.);
     private VelocityVoltage m_velocityVoltage = new VelocityVoltage(0.);
     private PositionDutyCycle m_positionOut = new PositionDutyCycle(0.);
@@ -63,6 +64,7 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
 
     private int m_slot = 0;
     private double m_arbFeedforward = 0.;
+    private boolean m_useFoc = false;
 
     public BeakV6TalonFX(int port, String canBus) {
         super(port, canBus);
@@ -76,10 +78,12 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
 
     @Override
     public void setVoltage(double volts) {
-        super.setVoltage(volts);
+        super.setControl(m_voltageOut.withEnableFOC(m_useFoc).withOutput(volts));
+    }
 
-        SmartDashboard.putNumber("Input volts " + getDeviceID(), volts);
-        SmartDashboard.putNumber("Output volts " + getDeviceID(), super.getMotorVoltage().getValueAsDouble());
+    @Override
+    public void set(double output) {
+        super.setControl(m_dutyCycleOut.withEnableFOC(m_useFoc).withOutput(output));
     }
 
     @Override
@@ -99,14 +103,16 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     public void setVelocityNU(double nu) {
         if (m_voltageCompEnabled) {
             super.setControl(m_velocityVoltage
-                .withFeedForward(m_arbFeedforward)
-                .withSlot(m_slot)
-                .withVelocity(nu));
+                    .withFeedForward(m_arbFeedforward)
+                    .withSlot(m_slot)
+                    .withVelocity(nu)
+                    .withEnableFOC(m_useFoc));
         } else {
             super.setControl(m_velocityOut
-                .withFeedForward(m_arbFeedforward)
-                .withSlot(m_slot)
-                .withVelocity(nu));
+                    .withFeedForward(m_arbFeedforward)
+                    .withSlot(m_slot)
+                    .withVelocity(nu)
+                    .withEnableFOC(m_useFoc));
         }
     }
 
@@ -114,14 +120,16 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     public void setPositionNU(double nu) {
         if (m_voltageCompEnabled) {
             super.setControl(m_positionVoltage
-                .withFeedForward(m_arbFeedforward)
-                .withSlot(m_slot)
-                .withPosition(nu));
+                    .withFeedForward(m_arbFeedforward)
+                    .withSlot(m_slot)
+                    .withPosition(nu)
+                    .withEnableFOC(m_useFoc));
         } else {
             super.setControl(m_positionOut
-                .withFeedForward(m_arbFeedforward)
-                .withSlot(m_slot)
-                .withPosition(nu));
+                    .withFeedForward(m_arbFeedforward)
+                    .withSlot(m_slot)
+                    .withPosition(nu)
+                    .withEnableFOC(m_useFoc));
         }
     }
 
@@ -134,14 +142,16 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     public void setMotionMagicNU(double nu) {
         if (m_voltageCompEnabled) {
             super.setControl(m_motionMagicVoltage
-                .withFeedForward(m_arbFeedforward)
-                .withSlot(m_slot)
-                .withPosition(nu));
+                    .withFeedForward(m_arbFeedforward)
+                    .withSlot(m_slot)
+                    .withPosition(nu)
+                    .withEnableFOC(m_useFoc));
         } else {
             super.setControl(m_motionMagicOut
-                .withFeedForward(m_arbFeedforward)
-                .withSlot(m_slot)
-                .withPosition(nu));
+                    .withFeedForward(m_arbFeedforward)
+                    .withSlot(m_slot)
+                    .withPosition(nu)
+                    .withEnableFOC(m_useFoc));
         }
     }
 
@@ -154,8 +164,7 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     public DataSignal<Double> getPositionNU(boolean latencyCompensated) {
         if (latencyCompensated) {
             return new DataSignal<Double>(
-                StatusSignal.getLatencyCompensatedValue(super.getPosition(), super.getVelocity())
-            );
+                    StatusSignal.getLatencyCompensatedValue(super.getPosition(), super.getVelocity()));
         }
         return new DataSignal<Double>(super.getPosition());
     }
@@ -198,7 +207,7 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
                 break;
             default:
                 DriverStation.reportWarning(
-                    "v6 TalonFX only supports slots 0, 1, and 2. Not applying PID configuration.", false);
+                        "v6 TalonFX only supports slots 0, 1, and 2. Not applying PID configuration.", false);
                 break;
         }
     }
@@ -235,7 +244,7 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
                 break;
             default:
                 DriverStation.reportWarning(
-                    "v6 TalonFX only supports slots 0, 1, and 2. Returning blank PID configuration.", false);
+                        "v6 TalonFX only supports slots 0, 1, and 2. Returning blank PID configuration.", false);
                 break;
         }
         return constants;
@@ -248,7 +257,7 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
 
         config.ReverseLimitEnable = true;
         config.ReverseLimitType = normallyClosed ? ReverseLimitTypeValue.NormallyClosed
-            : ReverseLimitTypeValue.NormallyOpen;
+                : ReverseLimitTypeValue.NormallyOpen;
         config.ReverseLimitSource = ReverseLimitSourceValue.LimitSwitchPin;
 
         m_configurator.apply(config);
@@ -261,7 +270,7 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
 
         config.ForwardLimitEnable = true;
         config.ForwardLimitType = normallyClosed ? ForwardLimitTypeValue.NormallyClosed
-            : ForwardLimitTypeValue.NormallyOpen;
+                : ForwardLimitTypeValue.NormallyOpen;
         config.ForwardLimitSource = ForwardLimitSourceValue.LimitSwitchPin;
 
         m_configurator.apply(config);
@@ -422,5 +431,10 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     @Override
     public void setSlot(int slot) {
         m_slot = slot;
+    }
+
+    @Override
+    public void useFOC(boolean useFoc) {
+        m_useFoc = useFoc;
     }
 }

@@ -247,4 +247,11 @@ public class BeakMotorControllerGroup implements BeakMotorController {
             controller.setSlot(slot);
         }
     }
+
+    @Override
+    public void useFOC(boolean useFoc) {
+        for (BeakMotorController controller : m_controllers) {
+            controller.useFOC(useFoc);
+        }
+    }
 }

@@ -213,4 +213,9 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
     public void setSlot(int slot) {
         m_slot = slot;
     }
+
+    @Override
+    public void useFOC(boolean useFoc) {
+        return;
+    }
 }

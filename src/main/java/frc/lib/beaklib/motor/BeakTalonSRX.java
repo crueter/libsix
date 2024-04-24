@@ -90,7 +90,7 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
     public TalonSRXSimCollection getTalonSRXSimCollection() {
         return super.getTalonSRXSimCollection();
     }
-    
+
     @Override
     public void setReverseLimitSwitchNormallyClosed(boolean normallyClosed) {
         super.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
@@ -210,5 +210,10 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
     @Override
     public void setNextArbFeedforward(double arbFeedforward) {
         m_arbFeedforward = arbFeedforward;
+    }
+
+    @Override
+    public void useFOC(boolean useFoc) {
+        return;
     }
 }

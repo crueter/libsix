@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.*;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
+import frc.lib.beaklib.motor.requests.BeakControlRequest;
 import frc.lib.beaklib.pid.BeakPIDConstants;
 
 /** Common interface for all motor controllers. */
@@ -45,7 +46,7 @@ public interface BeakMotorController extends MotorController {
      * 
      * @param velocity Angular velocity to run.
      */
-    default void setVelocityRPM(Measure<Velocity<Angle>> velocity) {
+    default void setAngularVelocity(Measure<Velocity<Angle>> velocity) {
         setVelocityNU(velocity.in(RPM) * getVelocityConversionConstant() * getEncoderGearRatio());
     }
 
@@ -160,19 +161,6 @@ public interface BeakMotorController extends MotorController {
     }
 
     /**
-     * Runs the motor in motion magic mode, in motor rotations.
-     * </p>
-     * 
-     * To run in native units, use {@link setMotionMagicNU}.
-     * 
-     * @param rotations
-     *                  Rotations to run.
-     */
-    default void setMotionMagicMotorRotations(double rotations) {
-        setMotionMagicNU(rotations * getPositionConversionConstant() * getEncoderGearRatio());
-    }
-
-    /**
      * Runs the motor to a specified angle in motion magic mode.
      * </p>
      * 
@@ -182,7 +170,7 @@ public interface BeakMotorController extends MotorController {
      *              Angle to run to.
      */
     default void setMotionMagicAngle(Rotation2d angle) {
-        setMotionMagicMotorRotations(angle.getRadians() / (2 * Math.PI));
+        setMotionMagicNU(angle.getRotations() * getPositionConversionConstant() * getEncoderGearRatio());
     }
 
     /**
@@ -212,6 +200,20 @@ public interface BeakMotorController extends MotorController {
      *             constants and using them.
      */
     public void setSlot(int slot);
+
+    /**
+     * Enable or disable FOC control.
+     * @param useFoc Whether or not to use FOC (if supported by the motor)
+     */
+    public void useFOC(boolean useFoc);
+
+    /**
+     * Run the motor using the specified request.
+     * @param request The request to apply.
+     */
+    default void setControl(BeakControlRequest request) {
+        request.apply(this);
+    }
 
     /**
      * Get the motor velocity.
