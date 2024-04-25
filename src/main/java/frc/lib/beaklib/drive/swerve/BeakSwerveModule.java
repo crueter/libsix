@@ -79,7 +79,7 @@ public class BeakSwerveModule {
         // Prevent the motors from drawing several hundred amps of current,
         // and allow them to run at the same speed even when voltage drops.
         // System.err.println(Config.DriveInverted);
-        m_driveMotor.setVoltageCompensationSaturation(12.0);
+        m_driveMotor.setNominalVoltage(12.0);
         m_driveMotor.setSupplyCurrentLimit(Config.DriveConfig.DriveSupplyLimit);
         m_driveMotor.setStatorCurrentLimit(Config.DriveConfig.DriveStatorLimit);
 

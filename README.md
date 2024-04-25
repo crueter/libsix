@@ -6,6 +6,23 @@ TODO:::::::::
 - [x] support FoC
 - [x] create motor control requests
 - [ ] motor config requests/classes
+    - [ ] ClosedLoop: wrap
+    - [ ] Current Limits
+    - [ ] Fused CANCoder of some sort
+    - [ ] Limit switch configs
+        - [ ] Support external (DIO) pins
+    - [ ] Motion Magic
+    - [ ] Duty Cycle: deadband, peak forward/reverse, open/closed loop ramps
+    - [ ] Same for voltage and torque
+    - [ ] add continuous wrap
+    - [ ] add continuous wrap
+    - [ ] add continuous wrap
+    - [ ] add continuous wrap
+    - [ ] add continuous wrap
+    - [ ] add continuous wrap
+    - [ ] add continuous wrap
+    - [ ] add continuous wrap
+    - [ ] add continuous wrap
 - [x] swerve control requests
     - [ ] Facing Angle
     - [ ] X-Drive
@@ -20,3 +37,10 @@ TODO:::::::::
 - [ ] TorqueCurrent output
 - [ ] More clean API for duty vs voltage vs torque
 - [ ] General cleanup of old stuff
+- [ ] Figure out status signals
+    - [ ] Clean up DataSignal in general
+    - [ ] Getter/setter stuff, more clean API overall
+- [ ] 250Hz odometry
+    - depends on status signals
+- [ ] PWM controller w/ DIO encoder?
+- [ ] Fused CANCoder

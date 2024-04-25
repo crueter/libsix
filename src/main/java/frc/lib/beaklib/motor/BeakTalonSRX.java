@@ -134,7 +134,7 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
     }
 
     @Override
-    public void setVoltageCompensationSaturation(double saturation) {
+    public void setNominalVoltage(double saturation) {
         super.enableVoltageCompensation(saturation > 0.);
         super.configVoltageCompSaturation(saturation);
     }

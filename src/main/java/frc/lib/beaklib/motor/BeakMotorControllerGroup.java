@@ -159,9 +159,9 @@ public class BeakMotorControllerGroup implements BeakMotorController {
     }
 
     @Override
-    public void setVoltageCompensationSaturation(double saturation) {
+    public void setNominalVoltage(double saturation) {
         for (BeakMotorController controller : m_controllers) {
-            controller.setVoltageCompensationSaturation(saturation);
+            controller.setNominalVoltage(saturation);
         }
     }
 

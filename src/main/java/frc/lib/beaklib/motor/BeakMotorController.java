@@ -472,7 +472,7 @@ public interface BeakMotorController extends MotorController {
      * @param saturation
      *                   Saturation.
      */
-    public void setVoltageCompensationSaturation(double saturation);
+    public void setNominalVoltage(double saturation);
 
     /**
      * Set the Motion Magic cruise velocity.

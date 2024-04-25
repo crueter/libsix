@@ -115,7 +115,7 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
     }
 
     @Override
-    public void setVoltageCompensationSaturation(double saturation) {
+    public void setNominalVoltage(double saturation) {
         super.enableVoltageCompensation(saturation);
     }
 
