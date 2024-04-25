@@ -16,6 +16,11 @@
           "open": true
         }
       },
+      "Pigeon 2 (v6)[0]": {
+        "header": {
+          "open": true
+        }
+      },
       "SPARK MAX [1]": {
         "header": {
           "open": true
@@ -37,11 +42,6 @@
         }
       },
       "Talon FX (v6)[2]": {
-        "header": {
-          "open": true
-        }
-      },
-      "Talon FX (v6)[2]/Rotor Sensor": {
         "header": {
           "open": true
         }

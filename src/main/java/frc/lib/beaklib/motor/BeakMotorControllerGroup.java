@@ -6,6 +6,12 @@ package frc.lib.beaklib.motor;
 
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
+import frc.lib.beaklib.motor.configs.BeakClosedLoopConfigs;
+import frc.lib.beaklib.motor.configs.BeakCurrentLimitConfigs;
+import frc.lib.beaklib.motor.configs.BeakDutyCycleConfigs;
+import frc.lib.beaklib.motor.configs.BeakHardwareLimitSwitchConfigs;
+import frc.lib.beaklib.motor.configs.BeakMotionProfileConfigs;
+import frc.lib.beaklib.motor.configs.BeakVoltageConfigs;
 import frc.lib.beaklib.pid.BeakPIDConstants;
 
 /** A combined group of motor controllers to be controlled as one. */
@@ -26,10 +32,14 @@ public class BeakMotorControllerGroup implements BeakMotorController {
 
     @Override
     public void setInverted(boolean isInverted) {
-        // This is an interesting implementation but one I'm keeping for various reasons.
-        // Sometimes, a user will pass in two motor controllers, one is inverted, one isn't.
-        // Say that, at some point, they need to invert this. It makes less sense to change
-        // the inversion of each and more sense to call a function that will invert each motor
+        // This is an interesting implementation but one I'm keeping for various
+        // reasons.
+        // Sometimes, a user will pass in two motor controllers, one is inverted, one
+        // isn't.
+        // Say that, at some point, they need to invert this. It makes less sense to
+        // change
+        // the inversion of each and more sense to call a function that will invert each
+        // motor
         // controller from its current state.
 
         m_inverted = isInverted;
@@ -73,9 +83,9 @@ public class BeakMotorControllerGroup implements BeakMotorController {
     }
 
     @Override
-    public void setMotionMagicNU(double nu) {
+    public void setMotionProfileNU(double nu) {
         for (BeakMotorController controller : m_controllers) {
-            controller.setMotionMagicNU(nu);
+            controller.setMotionProfileNU(nu);
         }
     }
 
@@ -104,79 +114,6 @@ public class BeakMotorControllerGroup implements BeakMotorController {
     @Override
     public BeakPIDConstants getPID() {
         return m_controllers[0].getPID();
-    }
-
-    @Override
-    public void setReverseLimitSwitchNormallyClosed(boolean normallyClosed) {
-        for (BeakMotorController controller : m_controllers) {
-            controller.setReverseLimitSwitchNormallyClosed(normallyClosed);
-        }
-    }
-
-    @Override
-    public void setForwardLimitSwitchNormallyClosed(boolean normallyClosed) {
-        for (BeakMotorController controller : m_controllers) {
-            controller.setForwardLimitSwitchNormallyClosed(normallyClosed);
-        }
-    }
-
-    @Override
-    public DataSignal<Boolean> getReverseLimitSwitch() {
-        return m_controllers[0].getReverseLimitSwitch();
-    }
-
-    @Override
-    public DataSignal<Boolean> getForwardLimitSwitch() {
-        return m_controllers[0].getForwardLimitSwitch();
-    }
-
-    @Override
-    public void setSupplyCurrentLimit(int amps) {
-        for (BeakMotorController controller : m_controllers) {
-            controller.setSupplyCurrentLimit(amps);
-        }
-    }
-
-    @Override
-    public void setStatorCurrentLimit(int amps) {
-        for (BeakMotorController controller : m_controllers) {
-            controller.setStatorCurrentLimit(amps);
-        }
-    }
-
-    @Override
-    public void restoreFactoryDefault() {
-        for (BeakMotorController controller : m_controllers) {
-            controller.restoreFactoryDefault();
-        }
-    }
-
-    @Override
-    public void setAllowedClosedLoopError(double error) {
-        for (BeakMotorController controller : m_controllers) {
-            controller.setAllowedClosedLoopError(error);
-        }
-    }
-
-    @Override
-    public void setNominalVoltage(double saturation) {
-        for (BeakMotorController controller : m_controllers) {
-            controller.setNominalVoltage(saturation);
-        }
-    }
-
-    @Override
-    public void setMotionMagicCruiseVelocity(double velocity) {
-        for (BeakMotorController controller : m_controllers) {
-            controller.setMotionMagicCruiseVelocity(velocity);
-        }
-    }
-
-    @Override
-    public void setMotionMagicAcceleration(double accel) {
-        for (BeakMotorController controller : m_controllers) {
-            controller.setMotionMagicAcceleration(accel);
-        }
     }
 
     @Override
@@ -253,5 +190,57 @@ public class BeakMotorControllerGroup implements BeakMotorController {
         for (BeakMotorController controller : m_controllers) {
             controller.useFOC(useFoc);
         }
+    }
+
+    @Override
+    public void applyConfig(BeakClosedLoopConfigs config) {
+        for (BeakMotorController controller : m_controllers) {
+            controller.applyConfig(config);
+        }
+    }
+
+    @Override
+    public void applyConfig(BeakCurrentLimitConfigs config) {
+        for (BeakMotorController controller : m_controllers) {
+            controller.applyConfig(config);
+        }
+    }
+
+    @Override
+    public void applyConfig(BeakDutyCycleConfigs config) {
+        for (BeakMotorController controller : m_controllers) {
+            controller.applyConfig(config);
+        }
+    }
+
+    @Override
+    public void applyConfig(BeakHardwareLimitSwitchConfigs config) {
+        for (BeakMotorController controller : m_controllers) {
+            controller.applyConfig(config);
+        }
+    }
+
+    @Override
+    public void applyConfig(BeakMotionProfileConfigs config) {
+        for (BeakMotorController controller : m_controllers) {
+            controller.applyConfig(config);
+        }
+    }
+
+    @Override
+    public void applyConfig(BeakVoltageConfigs config) {
+        for (BeakMotorController controller : m_controllers) {
+            controller.applyConfig(config);
+        }
+    }
+
+    @Override
+    public boolean getForwardLimitSwitch() {
+        return m_controllers[0].getForwardLimitSwitch();
+    }
+
+    @Override
+    public boolean getReverseLimitSwitch() {
+        return m_controllers[0].getReverseLimitSwitch();
     }
 }

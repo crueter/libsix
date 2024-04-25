@@ -25,7 +25,7 @@ public class BeakMotionMagicAngle extends BeakControlRequest {
 
     public void apply(BeakMotorController controller) {
         controller.useFOC(UseFOC);
-        controller.setMotionMagicAngle(Angle);
+        controller.setMotionProfileAngle(Angle);
     }
 
     /**

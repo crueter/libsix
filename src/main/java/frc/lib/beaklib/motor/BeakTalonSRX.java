@@ -5,20 +5,29 @@
 package frc.lib.beaklib.motor;
 
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.Second;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
-
+import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
 import com.ctre.phoenix.motorcontrol.TalonSRXSimCollection;
 import com.ctre.phoenix.motorcontrol.can.SlotConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
+import edu.wpi.first.wpilibj.DigitalInput;
+import frc.lib.beaklib.motor.configs.BeakClosedLoopConfigs;
+import frc.lib.beaklib.motor.configs.BeakCurrentLimitConfigs;
+import frc.lib.beaklib.motor.configs.BeakDutyCycleConfigs;
+import frc.lib.beaklib.motor.configs.BeakHardwareLimitSwitchConfigs;
+import frc.lib.beaklib.motor.configs.BeakMotionProfileConfigs;
+import frc.lib.beaklib.motor.configs.BeakVoltageConfigs;
+import frc.lib.beaklib.motor.configs.BeakHardwareLimitSwitchConfigs.BeakLimitSwitchSource;
 import frc.lib.beaklib.pid.BeakPIDConstants;
 
 /** Common motor controller interface for Talon SRX. */
@@ -30,6 +39,12 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
 
     private int m_slot = 0;
     private double m_arbFeedforward = 0.;
+
+    private DigitalInput m_dioRevLimitSwitch = null;
+    private DigitalInput m_dioFwdLimitSwitch = null;
+
+    private BeakLimitSwitchSource m_forwardSource = BeakLimitSwitchSource.None;
+    private BeakLimitSwitchSource m_reverseSource = BeakLimitSwitchSource.None;
 
     public BeakTalonSRX(int port) {
         super(port);
@@ -61,7 +76,7 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
     }
 
     @Override
-    public void setMotionMagicNU(double nu) {
+    public void setMotionProfileNU(double nu) {
         super.set(ControlMode.MotionMagic, nu, DemandType.ArbitraryFeedForward, m_arbFeedforward / 12.);
     }
 
@@ -89,64 +104,6 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
 
     public TalonSRXSimCollection getTalonSRXSimCollection() {
         return super.getTalonSRXSimCollection();
-    }
-
-    @Override
-    public void setReverseLimitSwitchNormallyClosed(boolean normallyClosed) {
-        super.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
-                normallyClosed ? LimitSwitchNormal.NormallyClosed : LimitSwitchNormal.NormallyOpen);
-    }
-
-    @Override
-    public void setForwardLimitSwitchNormallyClosed(boolean normallyClosed) {
-        super.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
-                normallyClosed ? LimitSwitchNormal.NormallyClosed : LimitSwitchNormal.NormallyOpen);
-    }
-
-    @Override
-    public DataSignal<Boolean> getReverseLimitSwitch() {
-        return new DataSignal<Boolean>(super.isRevLimitSwitchClosed() == 1);
-    }
-
-    @Override
-    public DataSignal<Boolean> getForwardLimitSwitch() {
-        return new DataSignal<Boolean>(super.isFwdLimitSwitchClosed() == 1);
-    }
-
-    @Override
-    public void setSupplyCurrentLimit(int amps) {
-        super.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, amps, amps + 5, 0.1));
-    }
-
-    @Override
-    public void setStatorCurrentLimit(int amps) {
-        System.err.println("CTRE Talon SRX does not support stator current limiting.");
-    }
-
-    @Override
-    public void restoreFactoryDefault() {
-        super.configFactoryDefault();
-    }
-
-    @Override
-    public void setAllowedClosedLoopError(double error) {
-        super.configAllowableClosedloopError(m_slot, error);
-    }
-
-    @Override
-    public void setNominalVoltage(double saturation) {
-        super.enableVoltageCompensation(saturation > 0.);
-        super.configVoltageCompSaturation(saturation);
-    }
-
-    @Override
-    public void setMotionMagicAcceleration(double accel) {
-        super.configMotionAcceleration(accel);
-    }
-
-    @Override
-    public void setMotionMagicCruiseVelocity(double velocity) {
-        super.configMotionCruiseVelocity(velocity);
     }
 
     @Override
@@ -215,5 +172,114 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
     @Override
     public void useFOC(boolean useFoc) {
         return;
+    }
+
+    @Override
+    public boolean getForwardLimitSwitch() {
+        return m_forwardSource == BeakLimitSwitchSource.Connected ? super.isFwdLimitSwitchClosed() == 1
+                : m_dioFwdLimitSwitch.get();
+    }
+
+    @Override
+    public boolean getReverseLimitSwitch() {
+        return m_reverseSource == BeakLimitSwitchSource.Connected ? super.isRevLimitSwitchClosed() == 1
+                : m_dioRevLimitSwitch.get();
+    }
+
+    @Override
+    public void applyConfig(BeakClosedLoopConfigs config) {
+        FeedbackDevice device;
+        switch (config.FeedbackSource) {
+            case RemoteCANCoder:
+                device = FeedbackDevice.RemoteSensor0;
+                super.configRemoteFeedbackFilter(config.RemoteSensorID, RemoteSensorSource.CANCoder, 0);
+                break;
+            case ConnectedAbsolute:
+                device = FeedbackDevice.CTRE_MagEncoder_Absolute;
+                break;
+            case ConnectedRelative:
+                device = FeedbackDevice.CTRE_MagEncoder_Relative;
+                break;
+            case BuiltIn:
+            default:
+                device = FeedbackDevice.IntegratedSensor;
+                break;
+        }
+
+        super.configSelectedFeedbackSensor(device);
+    }
+
+    @Override
+    public void applyConfig(BeakCurrentLimitConfigs config) {
+        super.configPeakCurrentLimit((int) config.SupplyCurrentThreshold);
+        super.configPeakCurrentDuration((int) config.SupplyTimeThreshold * 1000);
+        super.configContinuousCurrentLimit((int) config.SupplyCurrentLimit);
+    }
+
+    @Override
+    public void applyConfig(BeakDutyCycleConfigs config) {
+        super.configNeutralDeadband(config.NeutralDeadband);
+        super.configOpenloopRamp(config.OpenRampPeriod);
+        super.configClosedloopRamp(config.ClosedRampPeriod);
+        super.configPeakOutputForward(config.PeakForwardOutput);
+        super.configPeakOutputReverse(config.PeakReverseOutput);
+    }
+
+    @Override
+    public void applyConfig(BeakHardwareLimitSwitchConfigs config) {
+        switch (config.ForwardSource) {
+            case DIO:
+                if (m_dioFwdLimitSwitch != null) {
+                    m_dioFwdLimitSwitch.close();
+                }
+
+                m_dioFwdLimitSwitch = new DigitalInput(config.ForwardLimitSwitchID);
+                m_forwardSource = BeakLimitSwitchSource.DIO;
+                break;
+            case Connected:
+                m_forwardSource = BeakLimitSwitchSource.Connected;
+                super.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
+                        config.ForwardNormallyClosed ? LimitSwitchNormal.NormallyClosed
+                                : LimitSwitchNormal.NormallyOpen);
+                break;
+            case None:
+            default:
+                break;
+        }
+
+        switch (config.ReverseSource) {
+            case DIO:
+                if (m_dioRevLimitSwitch != null) {
+                    m_dioRevLimitSwitch.close();
+                }
+
+                m_dioRevLimitSwitch = new DigitalInput(config.ReverseLimitSwitchID);
+                m_reverseSource = BeakLimitSwitchSource.DIO;
+                break;
+            case Connected:
+                m_reverseSource = BeakLimitSwitchSource.Connected;
+                super.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
+                        config.ReverseNormallyClosed ? LimitSwitchNormal.NormallyClosed
+                                : LimitSwitchNormal.NormallyOpen);
+                break;
+            case None:
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void applyConfig(BeakMotionProfileConfigs config) {
+        super.configMotionAcceleration(config.Acceleration.in(RPM.per(Second)) * getVelocityConversionConstant());
+        super.configMotionCruiseVelocity(config.Velocity.in(RPM) * getVelocityConversionConstant());
+    }
+
+    @Override
+    public void applyConfig(BeakVoltageConfigs config) {
+        super.configNeutralDeadband(config.NeutralDeadband);
+        super.configOpenloopRamp(config.OpenRampPeriod);
+        super.configClosedloopRamp(config.ClosedRampPeriod);
+        super.configPeakOutputForward(config.PeakForwardOutput / 12.0);
+        super.configPeakOutputReverse(config.PeakReverseOutput / 12.0);
     }
 }

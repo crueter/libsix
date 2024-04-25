@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import frc.lib.beaklib.drive.swerve.DrivetrainConfiguration;
 import frc.lib.beaklib.gyro.BeakGyro;
 import frc.lib.beaklib.motor.BeakMotorControllerGroup;
+import frc.lib.beaklib.motor.configs.BeakCurrentLimitConfigs;
 
 /** Base class for all differential (tank, kitbot, WCD) drivetrains. */
 public class BeakDifferentialDrivetrain extends BeakDrivetrain {
@@ -28,6 +29,8 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
 
     protected DifferentialDrivePoseEstimator m_odom;
     protected DifferentialDriveKinematics m_kinematics;
+
+    private BeakCurrentLimitConfigs m_currentLimits = new BeakCurrentLimitConfigs();
 
     /**
      * Create a new Differential Drivetrain.
@@ -57,6 +60,9 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
             BeakGyro gyro) {
         m_gyro = gyro;
 
+        m_currentLimits.StatorCurrentLimit = m_config.DriveStatorLimit;
+        m_currentLimits.SupplyCurrentLimit = m_config.DriveSupplyLimit;
+
         m_leftControllers = leftMotorControllers;
         m_rightControllers = rightMotorControllers;
 
@@ -68,11 +74,8 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
         m_rightControllers.setWheelDiameter(Inches.of(m_config.WheelDiameter));
 
         // Current
-        m_leftControllers.setSupplyCurrentLimit(m_config.DriveSupplyLimit);
-        m_leftControllers.setStatorCurrentLimit(m_config.DriveStatorLimit);
-
-        m_rightControllers.setSupplyCurrentLimit(m_config.DriveSupplyLimit);
-        m_rightControllers.setStatorCurrentLimit(m_config.DriveStatorLimit);
+        m_leftControllers.applyConfig(m_currentLimits);
+        m_rightControllers.applyConfig(m_currentLimits);
 
         // PID
         m_leftControllers.setPID(m_config.DrivePID);

@@ -28,7 +28,7 @@ public class BeakMotionMagicDistance extends BeakControlRequest {
 
     public void apply(BeakMotorController controller) {
         controller.useFOC(UseFOC);
-        controller.setMotionMagic(Position);
+        controller.setMotionProfile(Position);
     }
 
     /**

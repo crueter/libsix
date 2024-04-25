@@ -14,8 +14,10 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import frc.lib.beaklib.encoder.BeakAbsoluteEncoder;
 import frc.lib.beaklib.motor.BeakMotorController;
+import frc.lib.beaklib.motor.configs.BeakCurrentLimitConfigs;
 import frc.lib.beaklib.motor.requests.BeakVoltage;
 import frc.lib.beaklib.motor.requests.motionmagic.BeakMotionMagicAngle;
+import frc.lib.beaklib.motor.requests.position.BeakPositionAngle;
 import frc.lib.beaklib.motor.requests.velocity.BeakVelocity;
 
 /** Base class for any non-differential swerve module. */
@@ -26,6 +28,9 @@ public class BeakSwerveModule {
     protected BeakMotorController m_steerMotor;
     protected BeakAbsoluteEncoder m_steerEncoder;
 
+    private BeakCurrentLimitConfigs m_driveCurrentLimits = new BeakCurrentLimitConfigs();
+    private BeakCurrentLimitConfigs m_steerCurrentLimits = new BeakCurrentLimitConfigs();
+
     public enum DriveRequestType {
         VelocityFOC,
         Velocity,
@@ -35,10 +40,14 @@ public class BeakSwerveModule {
 
     public enum SteerRequestType {
         MotionMagic,
-        MotionMagicFOC
+        MotionMagicFOC,
+        Position,
+        PositionFOC
     }
 
+    // TODO: implement this
     protected BeakMotionMagicAngle m_motionMagicAngle = new BeakMotionMagicAngle();
+    protected BeakPositionAngle m_positionAngle = new BeakPositionAngle();
     protected BeakVelocity m_velocity = new BeakVelocity();
     protected BeakVoltage m_voltage = new BeakVoltage();
 
@@ -79,9 +88,9 @@ public class BeakSwerveModule {
         // Prevent the motors from drawing several hundred amps of current,
         // and allow them to run at the same speed even when voltage drops.
         // System.err.println(Config.DriveInverted);
-        m_driveMotor.setNominalVoltage(12.0);
-        m_driveMotor.setSupplyCurrentLimit(Config.DriveConfig.DriveSupplyLimit);
-        m_driveMotor.setStatorCurrentLimit(Config.DriveConfig.DriveStatorLimit);
+        m_driveMotor.applyConfig(m_driveCurrentLimits
+                .withStatorCurrentLimit(Config.DriveConfig.DriveStatorLimit)
+                .withSupplyCurrentLimit(Config.DriveConfig.DriveSupplyLimit));
 
         // Configure PID
         m_driveMotor.setPID(Config.DriveConfig.DrivePID);
@@ -99,12 +108,8 @@ public class BeakSwerveModule {
 
         // Generally, turning motor current draw isn't a problem.
         // This is done to prevent stalls from killing the motor.
-        m_steerMotor.setSupplyCurrentLimit(Config.DriveConfig.SteerCurrentLimit);
-
-        m_steerMotor.setMotionMagicCruiseVelocity(100.0 / Config.DriveConfig.SteerRatio);
-        m_steerMotor.setMotionMagicAcceleration(1000.0 / Config.DriveConfig.SteerRatio);
-
-        // m_steerMotor.setVoltageCompensationSaturation(0.);
+        m_steerMotor.applyConfig(m_steerCurrentLimits
+                .withSupplyCurrentLimit(Config.DriveConfig.SteerCurrentLimit));
 
         m_steerMotor.setPID(Config.DriveConfig.TurnPID);
     }
@@ -228,6 +233,14 @@ public class BeakSwerveModule {
             case MotionMagicFOC:
                 m_steerMotor.setControl(
                         m_motionMagicAngle.withAngle(Rotation2d.fromDegrees(angleToSetDeg)).withUseFOC(true));
+                break;
+            case Position:
+                m_steerMotor.setControl(
+                        m_positionAngle.withAngle(Rotation2d.fromDegrees(angleToSetDeg)));
+                break;
+            case PositionFOC:
+                m_steerMotor.setControl(
+                        m_positionAngle.withAngle(Rotation2d.fromDegrees(angleToSetDeg)).withUseFOC(true));
                 break;
         }
 

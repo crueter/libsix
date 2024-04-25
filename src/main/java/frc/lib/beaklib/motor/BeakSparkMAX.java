@@ -5,7 +5,10 @@
 package frc.lib.beaklib.motor;
 
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.Second;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkLimitSwitch;
@@ -14,16 +17,33 @@ import com.revrobotics.SparkPIDController;
 
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
+import edu.wpi.first.wpilibj.DigitalInput;
+import frc.lib.beaklib.motor.configs.BeakClosedLoopConfigs;
+import frc.lib.beaklib.motor.configs.BeakCurrentLimitConfigs;
+import frc.lib.beaklib.motor.configs.BeakDutyCycleConfigs;
+import frc.lib.beaklib.motor.configs.BeakHardwareLimitSwitchConfigs;
+import frc.lib.beaklib.motor.configs.BeakMotionProfileConfigs;
+import frc.lib.beaklib.motor.configs.BeakVoltageConfigs;
+import frc.lib.beaklib.motor.configs.BeakClosedLoopConfigs.FeedbackSensor;
+import frc.lib.beaklib.motor.configs.BeakHardwareLimitSwitchConfigs.BeakLimitSwitchSource;
 import frc.lib.beaklib.pid.BeakPIDConstants;
 
 // TODO: implement fake kS
 /** Common motor controller interface for REV Spark MAX. */
 public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
-    private RelativeEncoder m_encoder;
+    private RelativeEncoder m_relativeEncoder;
+    private AbsoluteEncoder m_absoluteEncoder;
+
     private SparkPIDController m_pid;
 
-    private SparkLimitSwitch m_revLimitSwitch;
-    private SparkLimitSwitch m_fwdLimitSwitch;
+    private SparkLimitSwitch m_builtinRevLimitSwitch;
+    private SparkLimitSwitch m_builtinFwdLimitSwitch;
+
+    private DigitalInput m_dioRevLimitSwitch = null;
+    private DigitalInput m_dioFwdLimitSwitch = null;
+
+    private BeakLimitSwitchSource m_forwardSource = BeakLimitSwitchSource.None;
+    private BeakLimitSwitchSource m_reverseSource = BeakLimitSwitchSource.None;
 
     private double m_velocityConversionConstant = 1.;
     private double m_positionConversionConstant = 1.;
@@ -56,77 +76,22 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
 
     @Override
     public void setEncoderPositionNU(double nu) {
-        m_encoder.setPosition(nu);
+        m_relativeEncoder.setPosition(nu);
     }
 
     @Override
-    public void setMotionMagicNU(double nu) {
+    public void setMotionProfileNU(double nu) {
         m_pid.setReference(nu, ControlType.kSmartMotion, m_slot, m_arbFeedforward);
     }
 
     @Override
     public DataSignal<Double> getVelocityNU() {
-        return new DataSignal<Double>(m_encoder.getVelocity());
+        return new DataSignal<Double>(m_relativeEncoder.getVelocity());
     }
 
     @Override
     public DataSignal<Double> getPositionNU(boolean latencyCompensated) {
-        return new DataSignal<Double>(m_encoder.getPosition());
-    }
-
-    @Override
-    public void setReverseLimitSwitchNormallyClosed(boolean normallyClosed) {
-        m_revLimitSwitch = super.getReverseLimitSwitch(normallyClosed ? Type.kNormallyClosed : Type.kNormallyOpen);
-    }
-
-    @Override
-    public void setForwardLimitSwitchNormallyClosed(boolean normallyClosed) {
-        m_fwdLimitSwitch = super.getForwardLimitSwitch(normallyClosed ? Type.kNormallyClosed : Type.kNormallyOpen);
-    }
-
-    @Override
-    public DataSignal<Boolean> getReverseLimitSwitch() {
-        return new DataSignal<Boolean>(m_revLimitSwitch.isPressed());
-    }
-
-    @Override
-    public DataSignal<Boolean> getForwardLimitSwitch() {
-        return new DataSignal<Boolean>(m_fwdLimitSwitch.isPressed());
-    }
-
-    @Override
-    public void setSupplyCurrentLimit(int amps) {
-        super.setSmartCurrentLimit(amps);
-    }
-
-    @Override
-    public void setStatorCurrentLimit(int amps) {
-        System.err.println("REV Spark MAX does not support stator current limiting.");
-    }
-
-    @Override
-    public void restoreFactoryDefault() {
-        super.restoreFactoryDefaults();
-    }
-
-    @Override
-    public void setAllowedClosedLoopError(double error) {
-        m_pid.setSmartMotionAllowedClosedLoopError(error, m_slot);
-    }
-
-    @Override
-    public void setNominalVoltage(double saturation) {
-        super.enableVoltageCompensation(saturation);
-    }
-
-    @Override
-    public void setMotionMagicAcceleration(double accel) {
-        m_pid.setSmartMotionMaxAccel(accel, m_slot);
-    }
-
-    @Override
-    public void setMotionMagicCruiseVelocity(double velocity) {
-        m_pid.setSmartMotionMaxVelocity(velocity, m_slot);
+        return new DataSignal<Double>(m_relativeEncoder.getPosition());
     }
 
     @Override
@@ -197,11 +162,13 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
     }
 
     private void resetControllers() {
-        m_encoder = super.getEncoder();
+        m_relativeEncoder = super.getEncoder();
+        // m_alternateEncoder = super.getAlternateEncoder(kAPIBuildVersion);
+        m_absoluteEncoder = super.getAbsoluteEncoder();
         m_pid = super.getPIDController();
 
-        m_revLimitSwitch = super.getReverseLimitSwitch(Type.kNormallyOpen);
-        m_fwdLimitSwitch = super.getForwardLimitSwitch(Type.kNormallyOpen);
+        m_builtinRevLimitSwitch = super.getReverseLimitSwitch(Type.kNormallyOpen);
+        m_builtinFwdLimitSwitch = super.getForwardLimitSwitch(Type.kNormallyOpen);
     }
 
     @Override
@@ -217,5 +184,91 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
     @Override
     public void useFOC(boolean useFoc) {
         return;
+    }
+
+    @Override
+    public void applyConfig(BeakClosedLoopConfigs config) {
+        m_pid.setPositionPIDWrappingEnabled(config.Wrap);
+        m_pid.setFeedbackDevice(
+                config.FeedbackSource == FeedbackSensor.ConnectedAbsolute ? m_absoluteEncoder : m_relativeEncoder);
+    }
+
+    @Override
+    public void applyConfig(BeakCurrentLimitConfigs config) {
+        setSmartCurrentLimit((int) config.SupplyCurrentLimit);
+    }
+
+    @Override
+    public void applyConfig(BeakDutyCycleConfigs config) {
+        m_pid.setOutputRange(config.PeakReverseOutput, config.PeakForwardOutput);
+        super.setClosedLoopRampRate(config.ClosedRampPeriod);
+        super.setOpenLoopRampRate(config.OpenRampPeriod);
+    }
+
+    @Override
+    public void applyConfig(BeakHardwareLimitSwitchConfigs config) {
+        switch (config.ForwardSource) {
+            case DIO:
+                if (m_dioFwdLimitSwitch != null) {
+                    m_dioFwdLimitSwitch.close();
+                }
+
+                m_dioFwdLimitSwitch = new DigitalInput(config.ForwardLimitSwitchID);
+                m_forwardSource = BeakLimitSwitchSource.DIO;
+                break;
+            case Connected:
+                m_builtinFwdLimitSwitch = super.getForwardLimitSwitch(
+                        config.ForwardNormallyClosed ? Type.kNormallyClosed : Type.kNormallyOpen);
+
+                m_forwardSource = BeakLimitSwitchSource.Connected;
+                break;
+            case None:
+            default:
+                break;
+        }
+
+        switch (config.ReverseSource) {
+            case DIO:
+                if (m_dioRevLimitSwitch != null) {
+                    m_dioRevLimitSwitch.close();
+                }
+
+                m_dioRevLimitSwitch = new DigitalInput(config.ReverseLimitSwitchID);
+                m_reverseSource = BeakLimitSwitchSource.DIO;
+                break;
+            case Connected:
+                m_builtinRevLimitSwitch = super.getReverseLimitSwitch(
+                        config.ReverseNormallyClosed ? Type.kNormallyClosed : Type.kNormallyOpen);
+                m_reverseSource = BeakLimitSwitchSource.Connected;
+                break;
+            case None:
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void applyConfig(BeakMotionProfileConfigs config) {
+        m_pid.setSmartMotionMaxAccel(config.Acceleration.in(RPM.per(Second)), m_slot);
+        m_pid.setSmartMotionMaxVelocity(config.Velocity.in(RPM), m_slot);
+    }
+
+    @Override
+    public void applyConfig(BeakVoltageConfigs config) {
+        m_pid.setOutputRange(config.PeakReverseOutput / 12.0, config.PeakForwardOutput / 12.0);
+        super.setClosedLoopRampRate(config.ClosedRampPeriod);
+        super.setOpenLoopRampRate(config.OpenRampPeriod);
+    }
+
+    @Override
+    public boolean getForwardLimitSwitch() {
+        return m_forwardSource == BeakLimitSwitchSource.Connected ? m_builtinFwdLimitSwitch.isPressed()
+                : m_dioFwdLimitSwitch.get();
+    }
+
+    @Override
+    public boolean getReverseLimitSwitch() {
+        return m_reverseSource == BeakLimitSwitchSource.Connected ? m_builtinRevLimitSwitch.isPressed()
+                : m_dioRevLimitSwitch.get();
     }
 }

@@ -9,6 +9,12 @@ import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.*;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
+import frc.lib.beaklib.motor.configs.BeakClosedLoopConfigs;
+import frc.lib.beaklib.motor.configs.BeakCurrentLimitConfigs;
+import frc.lib.beaklib.motor.configs.BeakDutyCycleConfigs;
+import frc.lib.beaklib.motor.configs.BeakHardwareLimitSwitchConfigs;
+import frc.lib.beaklib.motor.configs.BeakMotionProfileConfigs;
+import frc.lib.beaklib.motor.configs.BeakVoltageConfigs;
 import frc.lib.beaklib.motor.requests.BeakControlRequest;
 import frc.lib.beaklib.pid.BeakPIDConstants;
 
@@ -149,13 +155,13 @@ public interface BeakMotorController extends MotorController {
      * Run the motor in motion magic mode.
      * </p>
      * 
-     * To run in native units, use {@link setMotionMagicNU}.
+     * To run in native units, use {@link setMotionProfileNU}.
      * 
      * @param distance
      *                 Distance to run.
      */
-    default void setMotionMagic(Measure<Distance> distance) {
-        setMotionMagicNU(
+    default void setMotionProfile(Measure<Distance> distance) {
+        setMotionProfileNU(
                 (distance.in(Meters) * getPositionConversionConstant() * getEncoderGearRatio()) //
                         / (getWheelDiameter().in(Meters) * Math.PI));
     }
@@ -164,13 +170,13 @@ public interface BeakMotorController extends MotorController {
      * Runs the motor to a specified angle in motion magic mode.
      * </p>
      * 
-     * To run in native units, use {@link setMotionMagicNU}.
+     * To run in native units, use {@link setMotionProfileNU}.
      * 
      * @param angle
      *              Angle to run to.
      */
-    default void setMotionMagicAngle(Rotation2d angle) {
-        setMotionMagicNU(angle.getRotations() * getPositionConversionConstant() * getEncoderGearRatio());
+    default void setMotionProfileAngle(Rotation2d angle) {
+        setMotionProfileNU(angle.getRotations() * getPositionConversionConstant() * getEncoderGearRatio());
     }
 
     /**
@@ -182,7 +188,7 @@ public interface BeakMotorController extends MotorController {
      * @param nu
      *           NU to run.
      */
-    public void setMotionMagicNU(double nu);
+    public void setMotionProfileNU(double nu);
 
     /**
      * Set the arbitrary feedforward to pass to the next PID command.
@@ -209,7 +215,7 @@ public interface BeakMotorController extends MotorController {
 
     /**
      * Run the motor using the specified request.
-     * @param request The request to apply.
+     * @param request The arequest to apply.
      */
     default void setControl(BeakControlRequest request) {
         request.apply(this);
@@ -343,160 +349,19 @@ public interface BeakMotorController extends MotorController {
      */
     public BeakPIDConstants getPID();
 
-    /**
-     * Set the reverse limit switch's default state
-     * 
-     * @param normallyClosed
-     *                       True if its normal state is "closed", false if its
-     *                       normal state is "open"
-     */
-    public void setReverseLimitSwitchNormallyClosed(boolean normallyClosed);
+    /* LIMIT SWITCH */
+    // TODO: DOcs
+    public boolean getForwardLimitSwitch();
+    public boolean getReverseLimitSwitch();
 
-    /**
-     * Set the forward limit switch's default state
-     * 
-     * @param normallyClosed
-     *                       True if its normal state is "closed", false if its
-     *                       normal state is "open"
-     */
-    public void setForwardLimitSwitchNormallyClosed(boolean normallyClosed);
+    /* CONFIGS */
 
-    /**
-     * Set the position at which the encoder will be reset to once the reverse limit
-     * switch is hit.
-     * </p>
-     * 
-     * Only applies to v6 Talon FX. This can probably be faked though :)
-     * 
-     * @param nu
-     *           Position in NU (shaft rotations) to set the encoder to when
-     *           hitting the reverse limit switch.
-     */
-    default void setReverseExtremePosition(double nu) {
-    }
-
-    /**
-     * Set the position at which the encoder will be reset to once the forward limit
-     * switch is hit.
-     * </p>
-     * 
-     * Only applies to v6 Talon FX.
-     * 
-     * @param nu
-     *           Position in NU (shaft rotations) to set the encoder to when
-     *           hitting the forward limit switch.
-     */
-    default void setForwardExtremePosition(double nu) {
-    }
-
-    /**
-     * Whether or not the limit switch is closed. This is independent of the
-     * polarity (normally-closed) option on
-     * CTRE devices, but on Spark MAXes, it is dependent--i.e. returning true if the
-     * limit switch is not pressed,
-     * when it's configured to be normally closed.
-     * </p>
-     * Also returns the timestamp of the received data.
-     */
-    public DataSignal<Boolean> getReverseLimitSwitch();
-
-    /**
-     * Whether or not the limit switch is closed. This is independent of the
-     * polarity (normally-closed) option on
-     * CTRE devices, but on Spark MAXes, it is dependent--i.e. returning true if the
-     * limit switch is not pressed,
-     * when it's configured to be normally closed.
-     * </p>
-     * Also returns the timestamp of the received data.
-     */
-    public DataSignal<Boolean> getForwardLimitSwitch();
-
-    /**
-     * Set the supply (PDH to controller) current limit.
-     * </p>
-     * 
-     * For Talons, the "tripping" point is set to this plus 5, and the time to trip
-     * back to the limit is set to 0.1 seconds.
-     * 
-     * @param amps
-     *             The maximum amps to allow the motor controller to receive.
-     */
-    public void setSupplyCurrentLimit(int amps);
-
-    /**
-     * Set the stator (controller to motor) current limit.
-     * </p>
-     * 
-     * Only supported on TalonFX.
-     * </p>
-     * 
-     * The "tripping" point is set to this plus 5, and the time to trip back to the
-     * limit is set to 0.1 seconds.
-     * 
-     * @param amps
-     *             The maximum amps to allow the motor controller to send.
-     */
-    public void setStatorCurrentLimit(int amps);
-
-    /**
-     * Restore the motor controller's factory default settings.
-     */
-    public void restoreFactoryDefault();
-
-    /**
-     * Set the deadband, in NU, where PID control will no longer attempt to respond
-     * to an error.
-     * 
-     * @param error
-     *              Error deadband.
-     */
-    public void setAllowedClosedLoopError(double error);
-
-    /**
-     * Set the voltage compensation saturation for the motor controller.
-     * </p>
-     * 
-     * See CTRE's docs for more info on voltage compensation.
-     * </p>
-     * 
-     * Note: due to the closed-source nature of the motor controller's
-     * implementations (JNI), the exact way this works on Spark MAXes and
-     * Talons may be inconsistent. For more consistent behavior, use
-     * <code>setVoltage</code> instead. This will directly account for
-     * voltage drops, with a standardized compensation value on Talons,
-     * or directly on the motor controller with PID on the Spark MAX.
-     * </p>
-     * 
-     * For any motor controller, set this to anything greater than 0 to enable it.
-     * 
-     * @param saturation
-     *                   Saturation.
-     */
-    public void setNominalVoltage(double saturation);
-
-    /**
-     * Set the Motion Magic cruise velocity.
-     * </p>
-     * 
-     * See CTRE's Motion Magic documentation, or REV's Smart Motion example
-     * to see what this means.
-     * 
-     * @param velocity
-     *                 Cruise velocity, in NU.
-     */
-    public void setMotionMagicCruiseVelocity(double velocity);
-
-    /**
-     * Set the Motion Magic acceleration.
-     * </p>
-     * 
-     * See CTRE's Motion Magic documentation, or REV's Smart Motion example
-     * to see what this means.
-     * 
-     * @param accel
-     *              Acceleration, in NU per second.
-     */
-    public void setMotionMagicAcceleration(double accel);
+    public void applyConfig(BeakClosedLoopConfigs config);
+    public void applyConfig(BeakCurrentLimitConfigs config);
+    public void applyConfig(BeakDutyCycleConfigs config);
+    public void applyConfig(BeakHardwareLimitSwitchConfigs config);
+    public void applyConfig(BeakMotionProfileConfigs config);
+    public void applyConfig(BeakVoltageConfigs config);
 
     /* CONVERSION API */
 

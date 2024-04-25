@@ -24,7 +24,7 @@ public class BeakMotionMagicNU extends BeakControlRequest {
 
     public void apply(BeakMotorController controller) {
         controller.useFOC(UseFOC);
-        controller.setMotionMagicNU(Position);
+        controller.setMotionProfileNU(Position);
     }
 
     /**

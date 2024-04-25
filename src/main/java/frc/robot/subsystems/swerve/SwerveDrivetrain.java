@@ -48,7 +48,7 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
         Units.degreesToRadians(25));
 
     private static final BeakPIDConstants DRIVE_PID = new BeakPIDConstants(0.05, 0.0, 0.0, 0.1, 0.2);
-    private static final BeakPIDConstants TURN_PID = new BeakPIDConstants(1.0).withkV(1.0);
+    private static final BeakPIDConstants TURN_PID = new BeakPIDConstants(2.0).withkV(0.0);
 
     private static final int PIGEON2_ID = 0;
     private static final String CAN_BUS = "rio";

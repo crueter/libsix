@@ -27,7 +27,7 @@ public class BeakChassisSpeedsDrive implements BeakSwerveRequest {
     /**
      * The type of control request to use for the steer motor.
      */
-    public BeakSwerveModule.SteerRequestType SteerRequestType = BeakSwerveModule.SteerRequestType.MotionMagic;
+    public BeakSwerveModule.SteerRequestType SteerRequestType = BeakSwerveModule.SteerRequestType.Position;
 
     public void apply(SwerveControlRequestParameters parameters, List<BeakSwerveModule> modulesToApply) {
         var states = parameters.kinematics.toSwerveModuleStates(Speeds, CenterOfRotation);
