@@ -8,7 +8,6 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
 
-import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.HardwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -176,12 +175,9 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
         return new DataSignal<Double>(super.getVelocity());
     }
 
+    // TODO: Latency compensation!!!
     @Override
     public DataSignal<Double> getPositionNU(boolean latencyCompensated) {
-        if (latencyCompensated) {
-            return new DataSignal<Double>(
-                    StatusSignal.getLatencyCompensatedValue(super.getPosition(), super.getVelocity()));
-        }
         return new DataSignal<Double>(super.getPosition());
     }
 

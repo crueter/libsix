@@ -12,8 +12,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
 import frc.lib.beaklib.encoder.BeakAbsoluteEncoder;
 import frc.lib.beaklib.motor.BeakMotorController;
+import frc.lib.beaklib.motor.DataSignal;
 import frc.lib.beaklib.motor.configs.BeakCurrentLimitConfigs;
 import frc.lib.beaklib.motor.requests.BeakVoltage;
 import frc.lib.beaklib.motor.requests.motionmagic.BeakMotionMagicAngle;
@@ -50,6 +54,11 @@ public class BeakSwerveModule {
     protected BeakPositionAngle m_positionAngle = new BeakPositionAngle();
     protected BeakVelocity m_velocity = new BeakVelocity();
     protected BeakVoltage m_voltage = new BeakVoltage();
+
+    protected DataSignal<Rotation2d> m_steerMotorAngle;
+    protected DataSignal<Rotation2d> m_absoluteAngle;
+    protected DataSignal<Measure<Distance>> m_driveDistance;
+    protected DataSignal<Measure<Velocity<Distance>>> m_driveSpeed;
 
     /**
      * Construct a new Swerve Module.
@@ -94,6 +103,9 @@ public class BeakSwerveModule {
 
         // Configure PID
         m_driveMotor.setPID(Config.DriveConfig.DrivePID);
+
+        m_driveSpeed = m_driveMotor.getSpeed();
+        m_driveDistance = m_driveMotor.getDistance(true);
     }
 
     public void configTurningMotor() {
@@ -112,6 +124,8 @@ public class BeakSwerveModule {
                 .withSupplyCurrentLimit(Config.DriveConfig.SteerCurrentLimit));
 
         m_steerMotor.setPID(Config.DriveConfig.TurnPID);
+
+        m_steerMotorAngle = m_steerMotor.getAngle(true);
     }
 
     public void configTurningEncoder() {
@@ -119,6 +133,8 @@ public class BeakSwerveModule {
 
         // Prevent huge CAN spikes
         m_steerEncoder.setDataFramePeriod(101);
+
+        m_absoluteAngle = m_steerEncoder.getAbsoluteEncoderPosition(true);
     }
 
     /* Bruh */
@@ -143,7 +159,7 @@ public class BeakSwerveModule {
      */
     public SwerveModuleState getState() {
         return new SwerveModuleState(
-                m_driveMotor.getSpeed().Value.in(MetersPerSecond),
+                m_driveSpeed.getValue().in(MetersPerSecond),
                 new Rotation2d(getAbsoluteEncoderRadians())); // FUTURE: Using Absolute reverses some wheels.
     }
 
@@ -154,7 +170,7 @@ public class BeakSwerveModule {
      */
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
-                m_driveMotor.getDistance(true).Value.in(Meters),
+                m_driveDistance.getValue().in(Meters),
                 new Rotation2d(getTurningEncoderRadians()));
     }
 
@@ -175,7 +191,7 @@ public class BeakSwerveModule {
      * @return Angle of the wheel in radians.
      */
     public double getAbsoluteEncoderRadians() {
-        double angle = m_steerEncoder.getAbsoluteEncoderPosition(false).Value.getRadians();
+        double angle = m_absoluteAngle.getValue().getRadians();
         angle %= 2.0 * Math.PI;
         if (angle < 0.0) {
             angle += 2.0 * Math.PI;
@@ -185,7 +201,7 @@ public class BeakSwerveModule {
     }
 
     public double getTurningEncoderRadians() {
-        double angle = m_steerMotor.getAngle(false).Value.getRadians();
+        double angle = m_steerMotorAngle.getValue().getRadians();
 
         angle %= 2.0 * Math.PI;
         if (angle < 0.0) {
@@ -222,7 +238,7 @@ public class BeakSwerveModule {
      *                         {@link SteerRequestType#MotionMagic}
      */
     public void apply(SwerveModuleState state, DriveRequestType driveRequestType, SteerRequestType steerRequestType) {
-        var optimized = SwerveModuleState.optimize(state, m_steerMotor.getAngle(true).Value);
+        var optimized = SwerveModuleState.optimize(state, m_steerMotorAngle.getValue());
 
         double angleToSetDeg = optimized.angle.getRotations();
         switch (steerRequestType) {
@@ -251,7 +267,7 @@ public class BeakSwerveModule {
          * velocity
          */
         /* To reduce the "skew" that occurs when changing direction */
-        double steerMotorError = angleToSetDeg - m_steerMotor.getAngle(true).Value.getDegrees();
+        double steerMotorError = angleToSetDeg - m_steerMotorAngle.getValue().getDegrees();
 
         /* If error is close to 0 rotations, we're already there, so apply full power */
         /*

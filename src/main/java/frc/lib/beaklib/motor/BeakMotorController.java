@@ -209,12 +209,14 @@ public interface BeakMotorController extends MotorController {
 
     /**
      * Enable or disable FOC control.
+     * 
      * @param useFoc Whether or not to use FOC (if supported by the motor)
      */
     public void useFOC(boolean useFoc);
 
     /**
      * Run the motor using the specified request.
+     * 
      * @param request The arequest to apply.
      */
     default void setControl(BeakControlRequest request) {
@@ -229,11 +231,12 @@ public interface BeakMotorController extends MotorController {
     default DataSignal<Measure<Velocity<Distance>>> getSpeed() {
         DataSignal<Double> velocity = getVelocityNU();
 
-        Measure<Velocity<Distance>> motorVelocity = MetersPerSecond
-                .of(velocity.Value * (getWheelDiameter().in(Meters) * Math.PI)
-                        / getVelocityConversionConstant() / getEncoderGearRatio() / 60.);
-
-        return new DataSignal<Measure<Velocity<Distance>>>(motorVelocity);
+        return new DataSignal<Measure<Velocity<Distance>>>(
+                () -> MetersPerSecond.of(velocity.getValue() * (getWheelDiameter().in(Meters) * Math.PI)
+                        / getVelocityConversionConstant() / getEncoderGearRatio() / 60.),
+                velocity::getTimestamp,
+                velocity::refresh,
+                velocity::setUpdateFrequency);
     }
 
     /**
@@ -243,9 +246,12 @@ public interface BeakMotorController extends MotorController {
      */
     default DataSignal<Measure<Velocity<Angle>>> getAngularVelocity() {
         DataSignal<Double> velocity = getVelocityNU();
-        var angularVelocity = RPM.of(velocity.Value / getVelocityConversionConstant() / getEncoderGearRatio());
 
-        return new DataSignal<Measure<Velocity<Angle>>>(angularVelocity);
+        return new DataSignal<Measure<Velocity<Angle>>>(
+                () -> RPM.of(velocity.getValue() / getVelocityConversionConstant() / getEncoderGearRatio()),
+                velocity::getTimestamp,
+                velocity::refresh,
+                velocity::setUpdateFrequency);
     }
 
     /**
@@ -268,10 +274,12 @@ public interface BeakMotorController extends MotorController {
     default DataSignal<Measure<Distance>> getDistance(boolean latencyCompensated) {
         DataSignal<Double> position = getPositionNU(latencyCompensated);
 
-        Measure<Distance> motorDistance = Meters.of(position.Value * (getWheelDiameter().in(Meters) * Math.PI)
-                / getPositionConversionConstant() / getEncoderGearRatio());
-
-        return new DataSignal<Measure<Distance>>(motorDistance, position.Timestamp);
+        return new DataSignal<Measure<Distance>>(
+                () -> Meters.of(position.getValue() * (getWheelDiameter().in(Meters) * Math.PI)
+                        / getPositionConversionConstant() / getEncoderGearRatio()),
+                position::getTimestamp,
+                position::refresh,
+                position::setUpdateFrequency);
     }
 
     /**
@@ -286,8 +294,11 @@ public interface BeakMotorController extends MotorController {
         DataSignal<Double> position = getPositionNU(latencyCompensated);
 
         return new DataSignal<Rotation2d>(
-                Rotation2d.fromRotations(position.Value / getPositionConversionConstant() / getEncoderGearRatio()),
-                position.Timestamp);
+                () -> Rotation2d
+                        .fromRotations(position.getValue() / getPositionConversionConstant() / getEncoderGearRatio()),
+                position::getTimestamp,
+                position::refresh,
+                position::setUpdateFrequency);
     }
 
     /**
@@ -332,8 +343,12 @@ public interface BeakMotorController extends MotorController {
      */
     default DataSignal<Double> getOutputVoltage() {
         DataSignal<Double> voltage = getSuppliedVoltage();
-        voltage.Value *= get();
-        return voltage;
+
+        return new DataSignal<Double>(
+                () -> voltage.getValue() * get(),
+                voltage::getTimestamp,
+                voltage::refresh,
+                voltage::setUpdateFrequency);
     }
 
     /**
@@ -352,15 +367,21 @@ public interface BeakMotorController extends MotorController {
     /* LIMIT SWITCH */
     // TODO: DOcs
     public boolean getForwardLimitSwitch();
+
     public boolean getReverseLimitSwitch();
 
     /* CONFIGS */
 
     public void applyConfig(BeakClosedLoopConfigs config);
+
     public void applyConfig(BeakCurrentLimitConfigs config);
+
     public void applyConfig(BeakDutyCycleConfigs config);
+
     public void applyConfig(BeakHardwareLimitSwitchConfigs config);
+
     public void applyConfig(BeakMotionProfileConfigs config);
+
     public void applyConfig(BeakVoltageConfigs config);
 
     /* CONVERSION API */

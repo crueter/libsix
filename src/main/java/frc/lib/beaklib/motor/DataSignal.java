@@ -4,27 +4,63 @@
 
 package frc.lib.beaklib.motor;
 
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.StatusSignal;
 
 import edu.wpi.first.wpilibj.Timer;
+import frc.lib.beaklib.CTRESignalStore;
 
 /** Add your docs here. */
 public class DataSignal<T> {
-    public T Value;
-    public double Timestamp;
+    private final Supplier<T> m_value;
+    private final Supplier<Double> m_timestamp;
+    private final Runnable m_refresh;
+    private final Consumer<Double> m_setUpdateFrequency;
+
+    public DataSignal(Supplier<T> value, Consumer<Double> setUpdateFrequency) {
+        this.m_value = value;
+        this.m_setUpdateFrequency = setUpdateFrequency;
+
+        this.m_refresh = () -> {};
+        this.m_timestamp = () -> Timer.getFPGATimestamp();
+    }
+
+    public DataSignal(Supplier<T> value) {
+        this(value, (freq) -> {});
+    }
+
+    public DataSignal(Supplier<T> value, Supplier<Double> timestamp, Runnable refresh,
+            Consumer<Double> setUpdateFrequency) {
+        this.m_value = value;
+        this.m_timestamp = timestamp;
+        this.m_refresh = refresh;
+        this.m_setUpdateFrequency = setUpdateFrequency;
+    }
 
     public DataSignal(StatusSignal<T> phoenixSignal) {
-        Value = phoenixSignal.getValue();
-        Timestamp = phoenixSignal.getTimestamp().getTime();
+        CTRESignalStore.add(phoenixSignal);
+
+        m_value = phoenixSignal::getValue;
+        m_timestamp = () -> phoenixSignal.getTimestamp().getTime();
+        m_refresh = phoenixSignal::refresh;
+        m_setUpdateFrequency = phoenixSignal::setUpdateFrequency;
     }
 
-    public DataSignal(T value, double timestamp) {
-        Value = value;
-        Timestamp = timestamp;
+    public T getValue() {
+        return m_value.get();
     }
 
-    public DataSignal(T value) {
-        Value = value;
-        Timestamp = Timer.getFPGATimestamp();
+    public double getTimestamp() {
+        return m_timestamp.get();
+    }
+
+    public void refresh() {
+        m_refresh.run();
+    }
+
+    public void setUpdateFrequency(double frequencyHz) {
+        m_setUpdateFrequency.accept(frequencyHz);
     }
 }

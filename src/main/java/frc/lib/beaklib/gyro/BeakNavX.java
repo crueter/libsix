@@ -23,21 +23,21 @@ public class BeakNavX extends AHRS implements BeakGyro {
 
     @Override
     public DataSignal<Rotation2d> getPitchRotation2d(boolean latencyCompensated) {
-        return new DataSignal<Rotation2d>(Rotation2d.fromDegrees(getPitch()));
+        return new DataSignal<Rotation2d>(() -> Rotation2d.fromDegrees(getPitch()));
     }
 
     @Override
     public DataSignal<Rotation2d> getRollRotation2d(boolean latencyCompensated) {
-        return new DataSignal<Rotation2d>(Rotation2d.fromDegrees(getRoll()));
+        return new DataSignal<Rotation2d>(() -> Rotation2d.fromDegrees(getRoll()));
     }
 
     @Override
     public DataSignal<Rotation2d> getYawRotation2d(boolean latencyCompensated) {
-        return new DataSignal<Rotation2d>(getRotation2d());
+        return new DataSignal<Rotation2d>(() -> getRotation2d());
     }
 
     @Override
     public DataSignal<Measure<Velocity<Angle>>> getAngularVelocity() {
-        return new DataSignal<Measure<Velocity<Angle>>>(DegreesPerSecond.of(getRate()));
+        return new DataSignal<Measure<Velocity<Angle>>>(() -> DegreesPerSecond.of(getRate()));
     }
 }

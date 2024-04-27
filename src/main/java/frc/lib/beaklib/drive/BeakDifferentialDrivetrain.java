@@ -15,11 +15,15 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.RobotController;
 
 import frc.lib.beaklib.drive.swerve.DrivetrainConfiguration;
 import frc.lib.beaklib.gyro.BeakGyro;
 import frc.lib.beaklib.motor.BeakMotorControllerGroup;
+import frc.lib.beaklib.motor.DataSignal;
 import frc.lib.beaklib.motor.configs.BeakCurrentLimitConfigs;
 
 /** Base class for all differential (tank, kitbot, WCD) drivetrains. */
@@ -31,6 +35,12 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
     protected DifferentialDriveKinematics m_kinematics;
 
     private BeakCurrentLimitConfigs m_currentLimits = new BeakCurrentLimitConfigs();
+
+    protected DataSignal<Measure<Distance>> m_leftDistance;
+    protected DataSignal<Measure<Distance>> m_rightDistance;
+
+    protected DataSignal<Measure<Velocity<Distance>>> m_leftSpeed;
+    protected DataSignal<Measure<Velocity<Distance>>> m_rightSpeed;
 
     /**
      * Create a new Differential Drivetrain.
@@ -80,6 +90,14 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
         // PID
         m_leftControllers.setPID(m_config.DrivePID);
         m_rightControllers.setPID(m_config.DrivePID);
+
+        // Signals
+        m_leftDistance = m_leftControllers.getDistance(true);
+        m_rightDistance = m_rightControllers.getDistance(true);
+
+        m_leftSpeed = m_leftControllers.getSpeed();
+        m_rightSpeed = m_rightControllers.getSpeed();
+
     }
 
     /* Differential-specific methods */
@@ -112,8 +130,8 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
 
     public DifferentialDriveWheelSpeeds getWheelSpeeds() {
         return new DifferentialDriveWheelSpeeds(
-                m_leftControllers.getSpeed().Value.in(MetersPerSecond),
-                m_rightControllers.getSpeed().Value.in(MetersPerSecond));
+                m_leftSpeed.getValue().in(MetersPerSecond),
+                m_rightSpeed.getValue().in(MetersPerSecond));
     }
 
     @Override
@@ -128,8 +146,8 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
         m_odom.updateWithTime(
                 RobotController.getFPGATime() / 1000000.,
                 getGyroRotation2d(),
-                m_leftControllers.getDistance(true).Value.in(Meters),
-                m_rightControllers.getDistance(true).Value.in(Meters));
+                m_leftDistance.getValue().in(Meters),
+                m_rightDistance.getValue().in(Meters));
 
         return getPoseMeters();
     }
@@ -154,8 +172,8 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
     public void resetOdometry(Pose2d pose) {
         if (!pose.equals(new Pose2d()))
             m_odom.resetPosition(getGyroRotation2d(),
-                    m_leftControllers.getDistance(true).Value.in(Meters),
-                    m_rightControllers.getDistance(true).Value.in(Meters),
+                    m_leftDistance.getValue().in(Meters),
+                    m_rightDistance.getValue().in(Meters),
                     pose);
     }
 

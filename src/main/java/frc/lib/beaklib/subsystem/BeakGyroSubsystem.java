@@ -30,7 +30,7 @@ public class BeakGyroSubsystem extends SubsystemBase {
         if (RobotBase.isSimulation()) {
             return Rotation2d.fromDegrees(m_gyroSim.getAngle());
         } else {
-            return m_gyro.getYawRotation2d(true).Value;
+            return m_gyro.getYawRotation2d(true).getValue();
         }
     }
 
@@ -52,7 +52,7 @@ public class BeakGyroSubsystem extends SubsystemBase {
         if (RobotBase.isSimulation()) {
             return m_gyroSim.getRate();
         } else {
-            return m_gyro.getAngularVelocity().Value.in(DegreesPerSecond);
+            return m_gyro.getAngularVelocity().getValue().in(DegreesPerSecond);
         }
     }
 
@@ -62,7 +62,7 @@ public class BeakGyroSubsystem extends SubsystemBase {
      * @return The reported pitch of the gyro.
      */
     public Rotation2d getGyroPitchRotation2d() {
-        return m_gyro.getPitchRotation2d(true).Value;
+        return m_gyro.getPitchRotation2d(true).getValue();
     }
 
     /**
@@ -71,6 +71,6 @@ public class BeakGyroSubsystem extends SubsystemBase {
      * @return The reported roll of the gyro.
      */
     public Rotation2d getGyroRollRotation2d() {
-        return m_gyro.getRollRotation2d(true).Value;
+        return m_gyro.getRollRotation2d(true).getValue();
     }
 }

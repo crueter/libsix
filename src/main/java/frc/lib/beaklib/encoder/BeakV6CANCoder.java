@@ -17,7 +17,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
-import edu.wpi.first.wpilibj.RobotController;
 import frc.lib.beaklib.motor.DataSignal;
 
 /** Add your docs here. */
@@ -36,20 +35,22 @@ public class BeakV6CANCoder extends CANcoder implements BeakAbsoluteEncoder {
 
     @Override
     public DataSignal<Rotation2d> getEncoderPosition(boolean latencyCompensated) {
-        double positionValue;
-        double positionTime;
         StatusSignal<Double> position = getPosition();
 
-        if (latencyCompensated) {
-            positionValue = StatusSignal.getLatencyCompensatedValue(position, getVelocity());
-            positionTime = RobotController.getFPGATime() / 1000000.;
-        } else {
-            positionValue = position.getValue();
-            positionTime = position.getTimestamp().getTime();
-        }
+        return new DataSignal<Rotation2d>(() -> {
+            double positionValue;
 
-        Rotation2d rotation = new Rotation2d(positionValue * 2 * Math.PI);
-        return new DataSignal<Rotation2d>(rotation, positionTime);
+            if (latencyCompensated) {
+                positionValue = StatusSignal.getLatencyCompensatedValue(position, getVelocity());
+            } else {
+                positionValue = position.getValue();
+            }
+
+            return new Rotation2d(positionValue * 2 * Math.PI);
+        },
+                () -> position.getTimestamp().getTime(),
+                position::refresh,
+                position::setUpdateFrequency);
     }
 
     @Override
@@ -58,10 +59,11 @@ public class BeakV6CANCoder extends CANcoder implements BeakAbsoluteEncoder {
     }
 
     @Override
-    public DataSignal<Measure<Velocity<Angle>>> getEncoderVelocity() { // TODO
-        StatusSignal<Double> velocity = super.getVelocity();
-        Measure<Velocity<Angle>> angularVelocity = RotationsPerSecond.of(velocity.getValue());
-        return new DataSignal<Measure<Velocity<Angle>>>(angularVelocity, velocity.getTimestamp().getTime());
+    public DataSignal<Measure<Velocity<Angle>>> getEncoderVelocity() {
+        StatusSignal<Double> velocity = getVelocity();
+
+        return new DataSignal<Measure<Velocity<Angle>>>(() -> RotationsPerSecond.of(velocity.getValue()),
+                () -> velocity.getTimestamp().getTime(), velocity::refresh, velocity::setUpdateFrequency);
     }
 
     @Override
@@ -94,7 +96,8 @@ public class BeakV6CANCoder extends CANcoder implements BeakAbsoluteEncoder {
         MagnetSensorConfigs config = new MagnetSensorConfigs();
         m_configurator.refresh(config);
 
-        config.SensorDirection = cwPositive ? SensorDirectionValue.Clockwise_Positive : SensorDirectionValue.CounterClockwise_Positive;
+        config.SensorDirection = cwPositive ? SensorDirectionValue.Clockwise_Positive
+                : SensorDirectionValue.CounterClockwise_Positive;
 
         m_configurator.apply(config);
     }
@@ -106,19 +109,21 @@ public class BeakV6CANCoder extends CANcoder implements BeakAbsoluteEncoder {
 
     @Override
     public DataSignal<Rotation2d> getAbsoluteEncoderPosition(boolean latencyCompensated) {
-        double positionValue;
-        double positionTime;
         StatusSignal<Double> position = getAbsolutePosition();
 
-        if (latencyCompensated) {
-            positionValue = StatusSignal.getLatencyCompensatedValue(position, getVelocity());
-            positionTime = RobotController.getFPGATime() / 1000000.;
-        } else {
-            positionValue = position.getValue();
-            positionTime = position.getTimestamp().getTime();
-        }
+        return new DataSignal<Rotation2d>(() -> {
+            double positionValue;
 
-        Rotation2d rotation = new Rotation2d(positionValue * 2 * Math.PI);
-        return new DataSignal<Rotation2d>(rotation, positionTime);
+            if (latencyCompensated) {
+                positionValue = StatusSignal.getLatencyCompensatedValue(position, getVelocity());
+            } else {
+                positionValue = position.getValue();
+            }
+
+            return new Rotation2d(positionValue * 2 * Math.PI);
+        },
+                () -> position.getTimestamp().getTime(),
+                position::refresh,
+                position::setUpdateFrequency);
     }
 }

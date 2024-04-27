@@ -15,6 +15,7 @@ import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
+import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.TalonSRXSimCollection;
 import com.ctre.phoenix.motorcontrol.can.SlotConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -82,17 +83,23 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
 
     @Override
     public DataSignal<Double> getVelocityNU() {
-        return new DataSignal<Double>(super.getSelectedSensorVelocity());
+        return new DataSignal<Double>(
+            super::getSelectedSensorVelocity,
+            (frequency) -> super.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, (int)(1000 / frequency)));
     }
 
     @Override
     public DataSignal<Double> getPositionNU(boolean latencyCompensated) {
-        return new DataSignal<Double>(super.getSelectedSensorPosition());
+        return new DataSignal<Double>(
+            super::getSelectedSensorPosition,
+            (frequency) -> super.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, (int)(1000 / frequency)));
     }
 
     @Override
     public DataSignal<Double> getOutputVoltage() {
-        return new DataSignal<Double>(super.getMotorOutputVoltage());
+        return new DataSignal<Double>(
+            super::getMotorOutputVoltage,
+            (frequency) -> super.setStatusFramePeriod(StatusFrame.Status_4_AinTempVbat, (int)(1000 / frequency)));
     }
 
     @Override
@@ -121,7 +128,9 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
 
     @Override
     public DataSignal<Double> getSuppliedVoltage() {
-        return new DataSignal<Double>(getBusVoltage());
+        return new DataSignal<Double>(
+            super::getBusVoltage,
+            (frequency) -> super.setStatusFramePeriod(StatusFrame.Status_4_AinTempVbat, (int)(1000 / frequency)));
     }
 
     @Override

@@ -25,8 +25,9 @@ public class BeakAnalogInput extends AnalogInput implements BeakAbsoluteEncoder 
     @Override
     public DataSignal<Rotation2d> getAbsoluteEncoderPosition(boolean latencyCompensated) {
         // SUSSY
-        double radians = (1.0 - super.getVoltage() / RobotController.getVoltage5V()) * 2.0 * Math.PI + m_offset.getRadians();
-        return new DataSignal<Rotation2d>(new Rotation2d(radians));
+        return new DataSignal<Rotation2d>(
+                () -> new Rotation2d((1.0 - super.getVoltage() / RobotController.getVoltage5V()) * 2.0 * Math.PI
+                        + m_offset.getRadians()));
     }
 
     @Override
@@ -45,7 +46,7 @@ public class BeakAnalogInput extends AnalogInput implements BeakAbsoluteEncoder 
 
     @Override
     public DataSignal<Measure<Velocity<Angle>>> getEncoderVelocity() {
-        return new DataSignal<Measure<Velocity<Angle>>>(RPM.zero());
+        return new DataSignal<Measure<Velocity<Angle>>>(() -> RPM.zero());
     }
 
     @Override

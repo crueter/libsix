@@ -86,12 +86,16 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
 
     @Override
     public DataSignal<Double> getVelocityNU() {
-        return new DataSignal<Double>(m_relativeEncoder.getVelocity());
+        return new DataSignal<Double>(
+                m_relativeEncoder::getVelocity,
+                (frequency) -> setPeriodicFramePeriod(PeriodicFrame.kStatus1, (int) (1000 / frequency)));
     }
 
     @Override
     public DataSignal<Double> getPositionNU(boolean latencyCompensated) {
-        return new DataSignal<Double>(m_relativeEncoder.getPosition());
+        return new DataSignal<Double>(
+                m_relativeEncoder::getPosition,
+                (frequency) -> setPeriodicFramePeriod(PeriodicFrame.kStatus2, (int) (1000 / frequency)));
     }
 
     @Override
@@ -118,7 +122,10 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
 
     @Override
     public DataSignal<Double> getSuppliedVoltage() {
-        return new DataSignal<Double>(getBusVoltage());
+        return new DataSignal<Double>(
+                super::getBusVoltage,
+                (frequency) -> setPeriodicFramePeriod(PeriodicFrame.kStatus1, (int) (1000 / frequency)));
+
     }
 
     @Override

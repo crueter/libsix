@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.lib.beaklib.BeakXBoxController;
 import frc.lib.beaklib.Util;
 import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
+import frc.robot.subsystems.Drivetrain;
 // import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 
@@ -25,8 +26,8 @@ import frc.robot.subsystems.swerve.SwerveDrivetrain;
  */
 public class RobotContainer {
     // Subsystems
-    private final BeakSwerveDrivetrain m_drive;
-    // private final Drivetrain m_drive;
+    // private final BeakSwerveDrivetrain m_drive;
+    private final Drivetrain m_drive;
 
     // Controller
     private final BeakXBoxController m_driverController = new BeakXBoxController(0);
@@ -40,8 +41,8 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        m_drive = new SwerveDrivetrain();
-        // m_drive = new Drivetrain();
+        // m_drive = new SwerveDrivetrain();
+        m_drive = new Drivetrain();
 
         // Configure the button bindings
         configureButtonBindings();
