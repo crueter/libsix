@@ -37,11 +37,13 @@ TODO:::::::::
 - [ ] PWM controller w/ DIO encoder?
 - [ ] Fused CANCoder
 
-- [ ] General DataSignal improvements
-    - [ ] getter for value/timestamp
-    - [ ] Update frequencies
-    - [ ] Refresh
+- [x] General DataSignal improvements
+    - [x] getter for value/timestamp
+    - [x] Update frequencies
+    - [x] Refresh
     - [ ] RefreshAll
-    - [ ] SignalStore, perhaps?
+    - [x] SignalStore, perhaps?
 
 - [ ] LogStore & DashboardStore
+- [ ] BeakSparkFLEX
+  - Wait for motor controller API to be done.
