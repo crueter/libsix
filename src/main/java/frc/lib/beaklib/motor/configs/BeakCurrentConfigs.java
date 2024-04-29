@@ -4,39 +4,34 @@
 
 package frc.lib.beaklib.motor.configs;
 
-/** Configurations for voltage output modes. */
-public class BeakVoltageConfigs {
+/** Configurations for current output modes. */
+public class BeakCurrentConfigs {
     /**
      * The percent at which it will be considered zero output.
      */
-    public double NeutralDeadband = 0.25;
+    public double NeutralDeadband = 0.50;
 
     /**
      * The peak output in the positive direction.
      */
-    public double PeakForwardOutput = 12.0;
+    public double PeakForwardOutput = 100.0;
 
     /**
      * The peak output in the negative direction.
      */
-    public double PeakReverseOutput = -12.0;
+    public double PeakReverseOutput = 100.0;
 
     /**
-     * The time it takes to go from 0 to 12V in voltage closed-loop modes.
+     * The time it takes to go from 0 to 300A in voltage closed-loop modes.
      */
     public double ClosedRampPeriod = 0.0;
 
     /**
-     * The time it takes to go from 0 to 12V in voltage open-loop modes.
+     * The time it takes to go from 0 to 300A in voltage open-loop modes.
      */
     public double OpenRampPeriod = 0.0;
 
-    /**
-     * The nominal supply voltage of the motor controller (usually 12V).
-     */
-    public double NominalVoltage = 12.0;
-
-    public BeakVoltageConfigs() {
+    public BeakCurrentConfigs() {
     }
 
     /**
@@ -46,7 +41,7 @@ public class BeakVoltageConfigs {
      *                        neutral output.
      * @return Itself, with this parameter changed.
      */
-    public BeakVoltageConfigs withNeutralDeadband(double neutralDeadband) {
+    public BeakCurrentConfigs withNeutralDeadband(double neutralDeadband) {
         NeutralDeadband = neutralDeadband;
         return this;
     }
@@ -57,7 +52,7 @@ public class BeakVoltageConfigs {
      * @param peakForwardOutput The highest positive output allowed.
      * @return Itself, with this parameter changed.
      */
-    public BeakVoltageConfigs withPeakForwardOutput(double peakForwardOutput) {
+    public BeakCurrentConfigs withPeakForwardOutput(double peakForwardOutput) {
         PeakForwardOutput = peakForwardOutput;
         return this;
     }
@@ -68,7 +63,7 @@ public class BeakVoltageConfigs {
      * @param peakReverseOutput The highest negative output allowed.
      * @return Itself, with this parameter changed.
      */
-    public BeakVoltageConfigs withPeakReverseOutput(double peakReverseOutput) {
+    public BeakCurrentConfigs withPeakReverseOutput(double peakReverseOutput) {
         PeakReverseOutput = peakReverseOutput;
         return this;
     }
@@ -76,10 +71,10 @@ public class BeakVoltageConfigs {
     /**
      * Method-chaining API for this config.
      * 
-     * @param closedRampPeriod The time to go from 0 to 12V in closed loop modes.
+     * @param closedRampPeriod The time to go from 0 to 300A in closed loop modes.
      * @return Itself, with this parameter changed.
      */
-    public BeakVoltageConfigs withClosedRampPeriod(double closedRampPeriod) {
+    public BeakCurrentConfigs withClosedRampPeriod(double closedRampPeriod) {
         ClosedRampPeriod = closedRampPeriod;
         return this;
     }
@@ -87,22 +82,11 @@ public class BeakVoltageConfigs {
     /**
      * Method-chaining API for this config.
      * 
-     * @param openRampPeriod The time to go from 0 to 12V in open loop modes.
+     * @param openRampPeriod The time to go from 0 to 300A in open loop modes.
      * @return Itself, with this parameter changed.
      */
-    public BeakVoltageConfigs withOpenRampPeriod(double openRampPeriod) {
+    public BeakCurrentConfigs withOpenRampPeriod(double openRampPeriod) {
         OpenRampPeriod = openRampPeriod;
-        return this;
-    }
-
-    /**
-     * Method-chaining API for this config.
-     * 
-     * @param nominalVoltage The nominal supply voltage of the motor controller (usually 12V).
-     * @return Itself, with this parameter changed.
-     */
-    public BeakVoltageConfigs withNominalVoltage(double nominalVoltage) {
-        NominalVoltage = nominalVoltage;
         return this;
     }
 }

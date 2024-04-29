@@ -7,10 +7,12 @@ package frc.lib.beaklib.motor;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import frc.lib.beaklib.motor.configs.BeakClosedLoopConfigs;
+import frc.lib.beaklib.motor.configs.BeakCurrentConfigs;
 import frc.lib.beaklib.motor.configs.BeakCurrentLimitConfigs;
 import frc.lib.beaklib.motor.configs.BeakDutyCycleConfigs;
 import frc.lib.beaklib.motor.configs.BeakHardwareLimitSwitchConfigs;
 import frc.lib.beaklib.motor.configs.BeakMotionProfileConfigs;
+import frc.lib.beaklib.motor.configs.BeakSoftLimitConfigs;
 import frc.lib.beaklib.motor.configs.BeakVoltageConfigs;
 import frc.lib.beaklib.motor.requests.BeakControlRequest.OutputType;
 import frc.lib.beaklib.pid.BeakPIDConstants;
@@ -259,6 +261,20 @@ public class BeakMotorControllerGroup implements BeakMotorController {
     public void setCurrent(double amps) {
         for (BeakMotorController controller : m_controllers) {
             controller.setCurrent(amps);
+        }
+    }
+
+    @Override
+    public void applyConfig(BeakSoftLimitConfigs config) {
+        for (BeakMotorController controller : m_controllers) {
+            controller.applyConfig(config);
+        }
+    }
+
+    @Override
+    public void applyConfig(BeakCurrentConfigs config) {
+        for (BeakMotorController controller : m_controllers) {
+            controller.applyConfig(config);
         }
     }
 }

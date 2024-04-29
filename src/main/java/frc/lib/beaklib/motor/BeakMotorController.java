@@ -15,10 +15,12 @@ import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import frc.lib.beaklib.motor.configs.BeakClosedLoopConfigs;
+import frc.lib.beaklib.motor.configs.BeakCurrentConfigs;
 import frc.lib.beaklib.motor.configs.BeakCurrentLimitConfigs;
 import frc.lib.beaklib.motor.configs.BeakDutyCycleConfigs;
 import frc.lib.beaklib.motor.configs.BeakHardwareLimitSwitchConfigs;
 import frc.lib.beaklib.motor.configs.BeakMotionProfileConfigs;
+import frc.lib.beaklib.motor.configs.BeakSoftLimitConfigs;
 import frc.lib.beaklib.motor.configs.BeakVoltageConfigs;
 import frc.lib.beaklib.motor.requests.BeakControlRequest;
 import frc.lib.beaklib.motor.requests.BeakControlRequest.OutputType;
@@ -410,6 +412,10 @@ public interface BeakMotorController extends MotorController {
 
     public void applyConfig(BeakVoltageConfigs config);
 
+    public void applyConfig(BeakSoftLimitConfigs config);
+
+    public void applyConfig(BeakCurrentConfigs config);
+
     /* CONVERSION API */
 
     /**
@@ -467,7 +473,7 @@ public interface BeakMotorController extends MotorController {
      * Get the position conversion constant for this motor.
      * </p>
      * 
-     * This is used by the rotationsd and meters getter/setter methods. Divide the
+     * This is used by the rotation and distance getter/setter methods. Divide the
      * native
      * position units by this constant to output rotations.
      * 

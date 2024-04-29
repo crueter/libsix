@@ -14,14 +14,12 @@ TODO:::::::::
     - [x] Motion Magic
     - [x] Duty Cycle: deadband, peak forward/reverse, open/closed loop ramps
     - [x] Same for voltage
-    - [ ] Same for torque
-    - [ ] Soft Limits
+    - [x] Same for torque
+    - [x] Soft Limits
     - [ ] Similar thing for encoders/gyros
-    - [ ] Nominal voltage
+    - [x] Nominal voltage
     - [ ] PID
         - Include slots in the config
-    - [ ] Conversion API
-    - [ ] Brake/Coast?
 - [x] swerve control requests
     - [ ] Facing Angle
     - [ ] X-Drive
@@ -34,12 +32,12 @@ TODO:::::::::
 - [ ] Standardized Simulation
 - [ ] Differential drivetrain requests
 - [x] TorqueCurrent output
-- [ ] More clean API for duty vs voltage vs torque
-- [ ] General cleanup of old stuff
+- [x] More clean API for duty vs voltage vs torque
+- [x] General cleanup of old stuff
 - [ ] 250Hz odometry
     - depends on status signals
 - [ ] PWM controller w/ DIO encoder?
-- [ ] Fused CANCoder
+- [x] Fused CANCoder
 
 - [x] General DataSignal improvements
     - [x] getter for value/timestamp
@@ -49,7 +47,7 @@ TODO:::::::::
     - [x] SignalStore, perhaps?
 
 - [ ] LogStore & DashboardStore
-- [ ] BeakSparkFLEX
+- [x] BeakSparkFLEX
   - Wait for motor controller API to be done.
 
 - [x] Get rid of BeakGyroSubsystem

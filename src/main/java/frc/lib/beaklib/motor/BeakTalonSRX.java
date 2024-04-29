@@ -23,10 +23,12 @@ import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.lib.beaklib.motor.configs.BeakClosedLoopConfigs;
+import frc.lib.beaklib.motor.configs.BeakCurrentConfigs;
 import frc.lib.beaklib.motor.configs.BeakCurrentLimitConfigs;
 import frc.lib.beaklib.motor.configs.BeakDutyCycleConfigs;
 import frc.lib.beaklib.motor.configs.BeakHardwareLimitSwitchConfigs;
 import frc.lib.beaklib.motor.configs.BeakMotionProfileConfigs;
+import frc.lib.beaklib.motor.configs.BeakSoftLimitConfigs;
 import frc.lib.beaklib.motor.configs.BeakVoltageConfigs;
 import frc.lib.beaklib.motor.requests.BeakControlRequest.OutputType;
 import frc.lib.beaklib.motor.configs.BeakHardwareLimitSwitchConfigs.BeakLimitSwitchSource;
@@ -308,5 +310,17 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
     @Override
     public void setCurrent(double amps) {
         super.set(ControlMode.Current, amps);
+    }
+
+    @Override
+    public void applyConfig(BeakSoftLimitConfigs config) {
+        super.configForwardSoftLimitThreshold(config.ForwardLimit.getRotations() * getPositionConversionConstant() * getEncoderGearRatio());
+        super.configForwardSoftLimitEnable(config.ForwardLimit.getRotations() != 0.0);
+        super.configReverseSoftLimitThreshold(config.ReverseLimit.getRotations() * getPositionConversionConstant() * getEncoderGearRatio());
+        super.configReverseSoftLimitEnable(config.ReverseLimit.getRotations() != 0.0);
+    }
+
+    @Override
+    public void applyConfig(BeakCurrentConfigs config) {
     }
 }

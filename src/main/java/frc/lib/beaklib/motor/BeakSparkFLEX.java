@@ -9,7 +9,7 @@ import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Second;
 
 import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkFlex;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkLimitSwitch;
 import com.revrobotics.SparkLimitSwitch.Type;
@@ -33,7 +33,7 @@ import frc.lib.beaklib.pid.BeakPIDConstants;
 
 // TODO: implement fake kS
 /** Common motor controller interface for REV Spark MAX. */
-public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
+public class BeakSparkFLEX extends CANSparkFlex implements BeakMotorController {
     private RelativeEncoder m_relativeEncoder;
     private AbsoluteEncoder m_absoluteEncoder;
 
@@ -57,7 +57,7 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
     private double m_arbFeedforward = 0.;
     private double m_nominalVoltage;
 
-    public BeakSparkMAX(int port) {
+    public BeakSparkFLEX(int port) {
         super(port, MotorType.kBrushless);
 
         resetControllers();
