@@ -18,6 +18,10 @@ TODO:::::::::
     - [ ] Soft Limits
     - [ ] Similar thing for encoders/gyros
     - [ ] Nominal voltage
+    - [ ] PID
+        - Include slots in the config
+    - [ ] Conversion API
+    - [ ] Brake/Coast?
 - [x] swerve control requests
     - [ ] Facing Angle
     - [ ] X-Drive
@@ -29,7 +33,7 @@ TODO:::::::::
 - [ ] Real feedforward
 - [ ] Standardized Simulation
 - [ ] Differential drivetrain requests
-- [ ] TorqueCurrent output
+- [x] TorqueCurrent output
 - [ ] More clean API for duty vs voltage vs torque
 - [ ] General cleanup of old stuff
 - [ ] 250Hz odometry
@@ -47,3 +51,7 @@ TODO:::::::::
 - [ ] LogStore & DashboardStore
 - [ ] BeakSparkFLEX
   - Wait for motor controller API to be done.
+
+- [x] Get rid of BeakGyroSubsystem
+- [ ] VisionSystem API
+- [ ] Acceleration control

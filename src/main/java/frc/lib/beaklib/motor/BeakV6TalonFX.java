@@ -17,13 +17,18 @@ import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.Slot2Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 // import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
+import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityDutyCycle;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 // import com.ctre.phoenix6.controls.VoltageOut;
@@ -47,6 +52,7 @@ import frc.lib.beaklib.motor.configs.BeakDutyCycleConfigs;
 import frc.lib.beaklib.motor.configs.BeakHardwareLimitSwitchConfigs;
 import frc.lib.beaklib.motor.configs.BeakMotionProfileConfigs;
 import frc.lib.beaklib.motor.configs.BeakVoltageConfigs;
+import frc.lib.beaklib.motor.requests.BeakControlRequest.OutputType;
 import frc.lib.beaklib.motor.configs.BeakHardwareLimitSwitchConfigs.BeakLimitSwitchSource;
 import frc.lib.beaklib.pid.BeakPIDConstants;
 
@@ -57,22 +63,25 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
 
     private DutyCycleOut m_dutyCycleOut = new DutyCycleOut(0.);
     private VoltageOut m_voltageOut = new VoltageOut(0.);
+    private TorqueCurrentFOC m_currentOut = new TorqueCurrentFOC(0.);
     private VelocityDutyCycle m_velocityOut = new VelocityDutyCycle(0.);
     private VelocityVoltage m_velocityVoltage = new VelocityVoltage(0.);
+    private VelocityTorqueCurrentFOC m_velocityCurrent = new VelocityTorqueCurrentFOC(0.);
     private PositionDutyCycle m_positionOut = new PositionDutyCycle(0.);
     private PositionVoltage m_positionVoltage = new PositionVoltage(0.);
+    private PositionTorqueCurrentFOC m_positionCurrent = new PositionTorqueCurrentFOC(0.);
     private MotionMagicDutyCycle m_motionMagicOut = new MotionMagicDutyCycle(0.);
     private MotionMagicVoltage m_motionMagicVoltage = new MotionMagicVoltage(0.);
+    private MotionMagicTorqueCurrentFOC m_motionMagicCurrent = new MotionMagicTorqueCurrentFOC(0.);
 
     private double m_velocityConversionConstant = 1. / 60.;
     private double m_positionConversionConstant = 1.;
     private double m_gearRatio = 1.;
     private Measure<Distance> m_wheelDiameter = Inches.of(4.);
 
-    private boolean m_voltageCompEnabled = false;
-
     private int m_slot = 0;
     private double m_arbFeedforward = 0.;
+    private OutputType m_nextOutput = OutputType.DutyCycle;
     private boolean m_useFoc = false;
 
     private DigitalInput m_dioRevLimitSwitch = null;
@@ -116,36 +125,62 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
 
     @Override
     public void setVelocityNU(double nu) {
-        if (m_voltageCompEnabled) {
-            super.setControl(m_velocityVoltage
+        ControlRequest request;
+        switch (m_nextOutput) {
+            case Voltage:
+                request = m_velocityVoltage
                     .withFeedForward(m_arbFeedforward)
                     .withSlot(m_slot)
                     .withVelocity(nu)
-                    .withEnableFOC(m_useFoc));
-        } else {
-            super.setControl(m_velocityOut
+                    .withEnableFOC(m_useFoc);
+                break;
+            case Current:
+                request = m_velocityCurrent
+                    .withFeedForward(m_arbFeedforward)
+                    .withSlot(m_slot)
+                    .withVelocity(nu);
+                break;
+            case DutyCycle:
+            default:
+                request = m_velocityOut
                     .withFeedForward(m_arbFeedforward)
                     .withSlot(m_slot)
                     .withVelocity(nu)
-                    .withEnableFOC(m_useFoc));
+                    .withEnableFOC(m_useFoc);
+                    break;
         }
+
+        super.setControl(request);
     }
 
     @Override
     public void setPositionNU(double nu) {
-        if (m_voltageCompEnabled) {
-            super.setControl(m_positionVoltage
+        ControlRequest request;
+        switch (m_nextOutput) {
+            case Voltage:
+                request = m_positionVoltage
                     .withFeedForward(m_arbFeedforward)
                     .withSlot(m_slot)
                     .withPosition(nu)
-                    .withEnableFOC(m_useFoc));
-        } else {
-            super.setControl(m_positionOut
+                    .withEnableFOC(m_useFoc);
+                break;
+            case Current:
+                request = m_positionCurrent
+                    .withFeedForward(m_arbFeedforward)
+                    .withSlot(m_slot)
+                    .withPosition(nu);
+                break;
+            case DutyCycle:
+            default:
+                request = m_positionOut
                     .withFeedForward(m_arbFeedforward)
                     .withSlot(m_slot)
                     .withPosition(nu)
-                    .withEnableFOC(m_useFoc));
+                    .withEnableFOC(m_useFoc);
+                    break;
         }
+
+        super.setControl(request);
     }
 
     @Override
@@ -155,19 +190,32 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
 
     @Override
     public void setMotionProfileNU(double nu) {
-        if (m_voltageCompEnabled) {
-            super.setControl(m_motionMagicVoltage
+        ControlRequest request;
+        switch (m_nextOutput) {
+            case Voltage:
+                request = m_motionMagicVoltage
                     .withFeedForward(m_arbFeedforward)
                     .withSlot(m_slot)
                     .withPosition(nu)
-                    .withEnableFOC(m_useFoc));
-        } else {
-            super.setControl(m_motionMagicOut
+                    .withEnableFOC(m_useFoc);
+                break;
+            case Current:
+                request = m_motionMagicCurrent
+                    .withFeedForward(m_arbFeedforward)
+                    .withSlot(m_slot)
+                    .withPosition(nu);
+                break;
+            case DutyCycle:
+            default:
+                request = m_motionMagicOut
                     .withFeedForward(m_arbFeedforward)
                     .withSlot(m_slot)
                     .withPosition(nu)
-                    .withEnableFOC(m_useFoc));
+                    .withEnableFOC(m_useFoc);
+                    break;
         }
+
+        super.setControl(request);
     }
 
     @Override
@@ -457,13 +505,31 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
 
     @Override
     public boolean getForwardLimitSwitch() {
-        return m_forwardSource == BeakLimitSwitchSource.Connected ? super.getForwardLimit().getValue() == ForwardLimitValue.ClosedToGround
+        return m_forwardSource == BeakLimitSwitchSource.Connected
+                ? super.getForwardLimit().getValue() == ForwardLimitValue.ClosedToGround
                 : m_dioFwdLimitSwitch.get();
     }
 
     @Override
     public boolean getReverseLimitSwitch() {
-        return m_reverseSource == BeakLimitSwitchSource.Connected ? super.getReverseLimit().getValue() == ReverseLimitValue.ClosedToGround
+        return m_reverseSource == BeakLimitSwitchSource.Connected
+                ? super.getReverseLimit().getValue() == ReverseLimitValue.ClosedToGround
                 : m_dioRevLimitSwitch.get();
+    }
+
+    @Override
+    public void setNextOutputType(OutputType outputType) {
+        m_nextOutput = outputType;
+    }
+
+    @Override
+    public void setNominalVoltage(double volts) {
+    }
+
+    @Override
+    public void setCurrent(double amps) {
+        super.setControl(
+            m_currentOut.withOutput(amps)
+        );
     }
 }

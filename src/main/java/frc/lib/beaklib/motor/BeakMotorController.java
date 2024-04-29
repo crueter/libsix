@@ -4,10 +4,15 @@
 
 package frc.lib.beaklib.motor;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RPM;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.*;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import frc.lib.beaklib.motor.configs.BeakClosedLoopConfigs;
 import frc.lib.beaklib.motor.configs.BeakCurrentLimitConfigs;
@@ -16,6 +21,7 @@ import frc.lib.beaklib.motor.configs.BeakHardwareLimitSwitchConfigs;
 import frc.lib.beaklib.motor.configs.BeakMotionProfileConfigs;
 import frc.lib.beaklib.motor.configs.BeakVoltageConfigs;
 import frc.lib.beaklib.motor.requests.BeakControlRequest;
+import frc.lib.beaklib.motor.requests.BeakControlRequest.OutputType;
 import frc.lib.beaklib.pid.BeakPIDConstants;
 
 /** Common interface for all motor controllers. */
@@ -27,6 +33,13 @@ public interface BeakMotorController extends MotorController {
      *              True = brake, False = coast
      */
     public void setBrake(boolean brake);
+
+    /**
+     * Run the motor in current mode.
+     *
+     * @param amps The current, in amps, to run at.
+     */
+    public void setCurrent(double amps);
 
     /**
      * Run the motor in velocity mode.
@@ -183,7 +196,7 @@ public interface BeakMotorController extends MotorController {
      * Runs the motor in motion magic mode, in NU.
      * </p>
      * 2048 NU per rotation for TalonFX, 4096 for TalonSRX, and usually 1 for
-     * SparkMAX.
+     * SparkMAX.S
      * 
      * @param nu
      *           NU to run.
@@ -206,6 +219,19 @@ public interface BeakMotorController extends MotorController {
      *             constants and using them.
      */
     public void setSlot(int slot);
+
+    /**
+     * Set the next output type to use.
+     * 
+     * @param outputType Voltage, duty cycle, or current
+     */
+    public void setNextOutputType(OutputType outputType);
+
+    /**
+     * Set the nominal voltage to use for voltage compensation, if available.
+     * @param volts Nominal supply voltage.
+     */
+    public void setNominalVoltage(double volts);
 
     /**
      * Enable or disable FOC control.

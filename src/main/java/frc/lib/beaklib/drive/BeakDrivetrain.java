@@ -4,6 +4,7 @@
 
 package frc.lib.beaklib.drive;
 
+import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -12,11 +13,14 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.simulation.AnalogGyroSim;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.beaklib.drive.swerve.DrivetrainConfiguration;
-import frc.lib.beaklib.subsystem.BeakGyroSubsystem;
+import frc.lib.beaklib.gyro.BeakGyro;
 
 /** Base drivetrain class. */
-public class BeakDrivetrain extends BeakGyroSubsystem {
+public class BeakDrivetrain extends SubsystemBase {
     protected Pose2d m_pose;
 
     protected BuiltInAccelerometer m_accelerometer = new BuiltInAccelerometer();
@@ -26,6 +30,9 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
 
     protected DrivetrainConfiguration m_config;
 
+    protected BeakGyro m_gyro;
+    protected AnalogGyroSim m_gyroSim;
+
     /**
      * Construct a new generic drivetrain.
      * 
@@ -33,6 +40,7 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
      */
     public BeakDrivetrain(DrivetrainConfiguration config) {
         m_config = config;
+        m_gyroSim = new AnalogGyroSim(0);
     }
 
     public void configMotors() {
@@ -42,14 +50,14 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
      * Method to drive the robot using joystick info.
      *
      * @param x
-     *            Speed of the robot in the x direction (forward).
+     *                      Speed of the robot in the x direction (forward).
      * @param y
-     *            Speed of the robot in the y direction (sideways).
+     *                      Speed of the robot in the y direction (sideways).
      * @param rot
-     *            Angular rate of the robot.
+     *                      Angular rate of the robot.
      * @param fieldRelative
-     *            Whether or not the x and y speeds are relative to
-     *            the field, for holonomic drivetrains.
+     *                      Whether or not the x and y speeds are relative to
+     *                      the field, for holonomic drivetrains.
      */
     public void drive(double x, double y, double rot, boolean fieldRelative) {
         x *= m_config.MaxSpeed;
@@ -80,7 +88,7 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
      * Method to drive the robot using chassis speeds
      * 
      * @param speeds
-     *            The ChassisSpeeds to use.
+     *               The ChassisSpeeds to use.
      */
     public void drive(ChassisSpeeds speeds) {
     }
@@ -117,7 +125,7 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
      * Reset odometry to specified pose.
      * 
      * @param pose
-     *            Pose to reset odometry to.
+     *             Pose to reset odometry to.
      */
     public void resetOdometry(Pose2d pose) {
     }
@@ -131,9 +139,9 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
         return m_pose;
     }
 
-
     /**
-     * Add a vision measurement directly from PhotonVision to the pose estimator's Kalman filter.
+     * Add a vision measurement directly from PhotonVision to the pose estimator's
+     * Kalman filter.
      * 
      * @param estimatedPose The {@link EstimatedRobotPose} from PhotonVision.
      */
@@ -148,9 +156,9 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
      * React, the blue alliance HP station)
      * 
      * @param x
-     *            The X position of the target.
+     *          The X position of the target.
      * @param y
-     *            The Y position of the target.
+     *          The Y position of the target.
      * @return A {@link Rotation2d} of the drivetrain's angle to the target
      *         position.
      */
@@ -174,10 +182,64 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
 
     /**
      * Get the jerk
+     * 
      * @return todo
      */
     public double getJerk() {
         return m_jerk;
+    }
+
+    /**
+     * Gets the gyro's reported angle.
+     * 
+     * @return A {@link Rotation2d} containing the reported angle of the gyro.
+     */
+    public Rotation2d getGyroRotation2d() {
+        if (RobotBase.isSimulation()) {
+            return Rotation2d.fromDegrees(m_gyroSim.getAngle());
+        } else {
+            return m_gyro.getYawRotation2d(true).getValue();
+        }
+    }
+
+    /**
+     * Get the gyro's reported heading.
+     * 
+     * @return The reported angle of the gyro in degrees.
+     */
+    public double getGyroHeading() {
+        return getGyroRotation2d().getDegrees();
+    }
+
+    /**
+     * Get the gyro's reported rate.
+     * 
+     * @return The reported rate of the gyro in degrees per second.
+     */
+    public double getGyroRate() {
+        if (RobotBase.isSimulation()) {
+            return m_gyroSim.getRate();
+        } else {
+            return m_gyro.getAngularVelocity().getValue().in(DegreesPerSecond);
+        }
+    }
+
+    /**
+     * Get the gyro's reported pitch.
+     * 
+     * @return The reported pitch of the gyro.
+     */
+    public Rotation2d getGyroPitchRotation2d() {
+        return m_gyro.getPitchRotation2d(true).getValue();
+    }
+
+    /**
+     * Get the gyro's reported roll.
+     * 
+     * @return The reported roll of the gyro.
+     */
+    public Rotation2d getGyroRollRotation2d() {
+        return m_gyro.getRollRotation2d(true).getValue();
     }
 
     @Override

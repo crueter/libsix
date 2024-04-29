@@ -28,6 +28,7 @@ import frc.lib.beaklib.motor.configs.BeakDutyCycleConfigs;
 import frc.lib.beaklib.motor.configs.BeakHardwareLimitSwitchConfigs;
 import frc.lib.beaklib.motor.configs.BeakMotionProfileConfigs;
 import frc.lib.beaklib.motor.configs.BeakVoltageConfigs;
+import frc.lib.beaklib.motor.requests.BeakControlRequest.OutputType;
 import frc.lib.beaklib.motor.configs.BeakHardwareLimitSwitchConfigs.BeakLimitSwitchSource;
 import frc.lib.beaklib.pid.BeakPIDConstants;
 
@@ -40,6 +41,7 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
 
     private int m_slot = 0;
     private double m_arbFeedforward = 0.;
+    private double m_nominalVoltage;
 
     private DigitalInput m_dioRevLimitSwitch = null;
     private DigitalInput m_dioFwdLimitSwitch = null;
@@ -84,22 +86,22 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
     @Override
     public DataSignal<Double> getVelocityNU() {
         return new DataSignal<Double>(
-            super::getSelectedSensorVelocity,
-            (frequency) -> super.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, (int)(1000 / frequency)));
+                super::getSelectedSensorVelocity,
+                (frequency) -> super.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, (int) (1000 / frequency)));
     }
 
     @Override
     public DataSignal<Double> getPositionNU(boolean latencyCompensated) {
         return new DataSignal<Double>(
-            super::getSelectedSensorPosition,
-            (frequency) -> super.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, (int)(1000 / frequency)));
+                super::getSelectedSensorPosition,
+                (frequency) -> super.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, (int) (1000 / frequency)));
     }
 
     @Override
     public DataSignal<Double> getOutputVoltage() {
         return new DataSignal<Double>(
-            super::getMotorOutputVoltage,
-            (frequency) -> super.setStatusFramePeriod(StatusFrame.Status_4_AinTempVbat, (int)(1000 / frequency)));
+                super::getMotorOutputVoltage,
+                (frequency) -> super.setStatusFramePeriod(StatusFrame.Status_4_AinTempVbat, (int) (1000 / frequency)));
     }
 
     @Override
@@ -129,8 +131,8 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
     @Override
     public DataSignal<Double> getSuppliedVoltage() {
         return new DataSignal<Double>(
-            super::getBusVoltage,
-            (frequency) -> super.setStatusFramePeriod(StatusFrame.Status_4_AinTempVbat, (int)(1000 / frequency)));
+                super::getBusVoltage,
+                (frequency) -> super.setStatusFramePeriod(StatusFrame.Status_4_AinTempVbat, (int) (1000 / frequency)));
     }
 
     @Override
@@ -290,5 +292,21 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
         super.configClosedloopRamp(config.ClosedRampPeriod);
         super.configPeakOutputForward(config.PeakForwardOutput / 12.0);
         super.configPeakOutputReverse(config.PeakReverseOutput / 12.0);
+    }
+
+    @Override
+    public void setNextOutputType(OutputType outputType) {
+        super.enableVoltageCompensation(outputType == OutputType.Voltage);
+    }
+
+    @Override
+    public void setNominalVoltage(double volts) {
+        m_nominalVoltage = volts;
+        super.configVoltageCompSaturation(m_nominalVoltage);
+    }
+
+    @Override
+    public void setCurrent(double amps) {
+        super.set(ControlMode.Current, amps);
     }
 }

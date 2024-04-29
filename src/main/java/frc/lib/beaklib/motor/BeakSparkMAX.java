@@ -26,6 +26,7 @@ import frc.lib.beaklib.motor.configs.BeakMotionProfileConfigs;
 import frc.lib.beaklib.motor.configs.BeakVoltageConfigs;
 import frc.lib.beaklib.motor.configs.BeakClosedLoopConfigs.FeedbackSensor;
 import frc.lib.beaklib.motor.configs.BeakHardwareLimitSwitchConfigs.BeakLimitSwitchSource;
+import frc.lib.beaklib.motor.requests.BeakControlRequest.OutputType;
 import frc.lib.beaklib.pid.BeakPIDConstants;
 
 // TODO: implement fake kS
@@ -52,6 +53,7 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
 
     private int m_slot = 0;
     private double m_arbFeedforward = 0.;
+    private double m_nominalVoltage;
 
     public BeakSparkMAX(int port) {
         super(port, MotorType.kBrushless);
@@ -277,5 +279,30 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
     public boolean getReverseLimitSwitch() {
         return m_reverseSource == BeakLimitSwitchSource.Connected ? m_builtinRevLimitSwitch.isPressed()
                 : m_dioRevLimitSwitch.get();
+    }
+
+    @Override
+    public void setNextOutputType(OutputType outputType) {
+        switch (outputType) {
+            case DutyCycle:
+                super.disableVoltageCompensation();
+                break;
+            case Voltage:
+                super.enableVoltageCompensation(m_nominalVoltage);
+                break;
+            case Current:
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void setNominalVoltage(double volts) {
+        m_nominalVoltage = volts;
+    }
+
+    @Override
+    public void setCurrent(double amps) {
+        m_pid.setReference(amps, ControlType.kCurrent);
     }
 }

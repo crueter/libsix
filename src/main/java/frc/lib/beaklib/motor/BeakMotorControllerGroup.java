@@ -12,6 +12,7 @@ import frc.lib.beaklib.motor.configs.BeakDutyCycleConfigs;
 import frc.lib.beaklib.motor.configs.BeakHardwareLimitSwitchConfigs;
 import frc.lib.beaklib.motor.configs.BeakMotionProfileConfigs;
 import frc.lib.beaklib.motor.configs.BeakVoltageConfigs;
+import frc.lib.beaklib.motor.requests.BeakControlRequest.OutputType;
 import frc.lib.beaklib.pid.BeakPIDConstants;
 
 /** A combined group of motor controllers to be controlled as one. */
@@ -33,14 +34,10 @@ public class BeakMotorControllerGroup implements BeakMotorController {
     @Override
     public void setInverted(boolean isInverted) {
         // This is an interesting implementation but one I'm keeping for various
-        // reasons.
-        // Sometimes, a user will pass in two motor controllers, one is inverted, one
-        // isn't.
-        // Say that, at some point, they need to invert this. It makes less sense to
-        // change
-        // the inversion of each and more sense to call a function that will invert each
-        // motor
-        // controller from its current state.
+        // reasons. Sometimes, a user will pass in two motor controllers, one is
+        // inverted, one isn't. Say that, at some point, they need to invert this. It
+        // makes less sense to change the inversion of each and more sense to call a
+        // function that will invert each motor controller from its current state.
 
         m_inverted = isInverted;
         for (BeakMotorController controller : m_controllers) {
@@ -242,5 +239,26 @@ public class BeakMotorControllerGroup implements BeakMotorController {
     @Override
     public boolean getReverseLimitSwitch() {
         return m_controllers[0].getReverseLimitSwitch();
+    }
+
+    @Override
+    public void setNextOutputType(OutputType outputType) {
+        for (BeakMotorController controller : m_controllers) {
+            controller.setNextOutputType(outputType);
+        }
+    }
+
+    @Override
+    public void setNominalVoltage(double volts) {
+        for (BeakMotorController controller : m_controllers) {
+            controller.setNominalVoltage(volts);
+        }
+    }
+
+    @Override
+    public void setCurrent(double amps) {
+        for (BeakMotorController controller : m_controllers) {
+            controller.setCurrent(amps);
+        }
     }
 }

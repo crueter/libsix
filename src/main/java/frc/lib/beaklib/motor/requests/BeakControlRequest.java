@@ -11,7 +11,7 @@ public class BeakControlRequest {
     public enum OutputType {
         Voltage,
         DutyCycle,
-        TorqueCurrentFOC
+        Current
     }
 
     public void apply(BeakMotorController controller) {}

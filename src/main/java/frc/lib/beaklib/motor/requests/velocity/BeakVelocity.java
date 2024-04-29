@@ -24,10 +24,16 @@ public class BeakVelocity extends BeakControlRequest {
      */
     public boolean UseFOC = false;
 
+    /**
+     * Output value (current, voltage, duty cycle)
+     */
+    public OutputType Output;
+
     public BeakVelocity() {
     }
 
     public void apply(BeakMotorController controller) {
+        controller.setNextOutputType(Output);
         controller.useFOC(UseFOC);
         controller.setVelocity(Velocity);
     }
@@ -53,4 +59,16 @@ public class BeakVelocity extends BeakControlRequest {
         this.UseFOC = useFOC;
         return this;
     }
+
+    /**
+     * Method-chaining API for this request.
+     * 
+     * @param type What output type to use: voltage, duty cycle, current
+     * @return Itself, with this parameter changed.
+     */
+    public BeakVelocity withOutputType(OutputType type) {
+        this.Output = type;
+        return this;
+    }
+
 }

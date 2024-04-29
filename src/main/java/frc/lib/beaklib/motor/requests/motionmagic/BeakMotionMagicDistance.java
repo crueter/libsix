@@ -23,10 +23,16 @@ public class BeakMotionMagicDistance extends BeakControlRequest {
      */
     public boolean UseFOC = false;
 
+    /**
+     * Output value (current, voltage, duty cycle)
+     */
+    public OutputType Output;
+
     public BeakMotionMagicDistance() {
     }
 
     public void apply(BeakMotorController controller) {
+        controller.setNextOutputType(Output);
         controller.useFOC(UseFOC);
         controller.setMotionProfile(Position);
     }
@@ -52,4 +58,16 @@ public class BeakMotionMagicDistance extends BeakControlRequest {
         this.UseFOC = useFOC;
         return this;
     }
+
+    /**
+     * Method-chaining API for this request.
+     * 
+     * @param type What output type to use: voltage, duty cycle, current
+     * @return Itself, with this parameter changed.
+     */
+    public BeakMotionMagicDistance withOutputType(OutputType type) {
+        this.Output = type;
+        return this;
+    }
+
 }

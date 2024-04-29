@@ -49,7 +49,7 @@ public class BeakSwerveModule {
         PositionFOC
     }
 
-    // TODO: implement this
+    // TODO: implement motion magic fr
     protected BeakMotionMagicAngle m_motionMagicAngle = new BeakMotionMagicAngle();
     protected BeakPositionAngle m_positionAngle = new BeakPositionAngle();
     protected BeakVelocity m_velocity = new BeakVelocity();
@@ -242,7 +242,6 @@ public class BeakSwerveModule {
 
         double angleToSetDeg = optimized.angle.getRotations();
         switch (steerRequestType) {
-            // TODO: Implement FOC
             case MotionMagic:
                 m_steerMotor.setControl(m_motionMagicAngle.withAngle(Rotation2d.fromDegrees(angleToSetDeg)));
                 break;
