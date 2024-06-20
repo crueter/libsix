@@ -4,7 +4,7 @@
 
 package frc.lib.beaklib.motor.configs;
 
-/** Configuration for closed loop wrapping & feedback. */
+/** Configuration for closed loop wrapping and feedback. */
 public class BeakClosedLoopConfigs {
     /**
      * Whether or not the PID error should wrap.

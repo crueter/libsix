@@ -31,6 +31,7 @@ import frc.lib.beaklib.gyro.BeakV6Pigeon2;
 /** Generic Swerve Drivetrain subsystem. */
 public class BeakSwerveDrivetrain extends BeakDrivetrain {
     /**
+     * <p>
      * The modules in this swerve drivetrain.
      * </p>
      * These are in the same order as passed in the constructor; i.e if the front
@@ -86,7 +87,7 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
 
         m_simDrive = new BeakSwerveSim(getModuleLocations(), (BeakV6Pigeon2) m_gyro, m_config, m_modules);
 
-        resetTurningMotors();
+        resetSteering();
     }
 
     /**
@@ -201,14 +202,14 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
     public double[] getModuleAngles() {
         double[] states = new double[m_numModules];
         for (int i = 0; i < m_numModules; i++) {
-            states[i] = Units.radiansToDegrees(m_modules.get(i).getTurningEncoderRadians());
+            states[i] = Units.radiansToDegrees(m_modules.get(i).getSteerEncoderRadians());
         }
 
         return states;
     }
 
     /**
-     * Reset all drive and turning encoders to zero.
+     * Reset all drive and steer encoders to zero.
      */
     public void resetEncoders() {
         for (BeakSwerveModule module : m_modules) {
@@ -217,11 +218,11 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
     }
 
     /**
-     * Re-zero all turning encoders to match the CANCoder.
+     * Re-zero all steer encoders to match the CANCoder.
      */
-    public void resetTurningMotors() {
+    public void resetSteering() {
         for (BeakSwerveModule module : m_modules) {
-            module.resetTurningMotor();
+            module.resetSteerMotor();
         }
     }
 
@@ -229,7 +230,7 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
      * Zero the pose and heading of the robot.
      */
     public void zero() {
-        resetTurningMotors();
+        resetSteering();
         m_odom.resetPosition(getGyroRotation2d(), getModulePositions(), new Pose2d());
     }
 

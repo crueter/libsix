@@ -64,7 +64,7 @@ public class BeakSwerveModule {
      * Construct a new Swerve Module.
      * 
      * @param config
-     *               {@link SwerveModuleconfiguration} containing
+     *               {@link SwerveModuleConfiguration} containing
      *               details of the module.
      */
     public BeakSwerveModule(SwerveModuleConfiguration config) {
@@ -76,14 +76,14 @@ public class BeakSwerveModule {
      */
     public void setup(
             BeakMotorController driveMotor,
-            BeakMotorController turningMotor,
-            BeakAbsoluteEncoder turningEncoder) {
+            BeakMotorController steerMotor,
+            BeakAbsoluteEncoder steerEncoder) {
         m_driveMotor = driveMotor;
-        m_steerMotor = turningMotor;
-        m_steerEncoder = turningEncoder;
+        m_steerMotor = steerMotor;
+        m_steerEncoder = steerEncoder;
 
-        configTurningEncoder();
-        configTurningMotor();
+        configSteerEncoder();
+        configSteerMotor();
         configDriveMotor();
     }
 
@@ -108,7 +108,7 @@ public class BeakSwerveModule {
         m_driveDistance = m_driveMotor.getDistance(true);
     }
 
-    public void configTurningMotor() {
+    public void configSteerMotor() {
         m_steerMotor.setEncoderGearRatio(Config.DriveConfig.SteerRatio);
 
         m_steerMotor.setBrake(true);
@@ -116,23 +116,23 @@ public class BeakSwerveModule {
 
         // Initialize the encoder's position--MUST BE DONE AFTER
         // CONFIGURING TURNING ENCODER!
-        resetTurningMotor();
+        resetSteerMotor();
 
         // Generally, turning motor current draw isn't a problem.
         // This is done to prevent stalls from killing the motor.
         m_steerMotor.applyConfig(m_steerCurrentLimits
                 .withSupplyCurrentLimit(Config.DriveConfig.SteerCurrentLimit));
 
-        m_steerMotor.setPID(Config.DriveConfig.TurnPID);
+        m_steerMotor.setPID(Config.DriveConfig.SteerPID);
 
         m_steerMotorAngle = m_steerMotor.getAngle(true);
     }
 
-    public void configTurningEncoder() {
+    public void configSteerEncoder() {
         m_steerEncoder.setAbsoluteOffset(Config.AngleOffset);
 
         // Prevent huge CAN spikes
-        m_steerEncoder.setDataFramePeriod(101);
+        m_steerEncoder.setDataFramePeriod(21);
 
         m_absoluteAngle = m_steerEncoder.getAbsoluteEncoderPosition(true);
     }
@@ -171,7 +171,7 @@ public class BeakSwerveModule {
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
                 m_driveDistance.getValue().in(Meters),
-                new Rotation2d(getTurningEncoderRadians()));
+                new Rotation2d(getSteerEncoderRadians()));
     }
 
     /** Encoders & Heading */
@@ -180,7 +180,7 @@ public class BeakSwerveModule {
      * Set the turning motor's position to match the reported
      * angle from the CANCoder.
      */
-    public void resetTurningMotor() {
+    public void resetSteerMotor() {
         m_steerMotor.setEncoderPositionMotorRotations(
                 Math.toDegrees(getAbsoluteEncoderRadians()) / 360.0);
     }
@@ -200,7 +200,7 @@ public class BeakSwerveModule {
         return angle;
     }
 
-    public double getTurningEncoderRadians() {
+    public double getSteerEncoderRadians() {
         double angle = m_steerMotorAngle.getValue().getRadians();
 
         angle %= 2.0 * Math.PI;

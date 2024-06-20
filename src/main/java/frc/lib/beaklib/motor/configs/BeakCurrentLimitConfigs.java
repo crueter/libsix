@@ -7,7 +7,7 @@ package frc.lib.beaklib.motor.configs;
 import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 
 /**
- * Configurations for stator & supply current limits.
+ * Configurations for stator and supply current limits.
  * <p>
  * Note that for TalonFX on TorqueCurrent modes, you must use
  * {@link TorqueCurrentConfigs} instead.

@@ -11,7 +11,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.lib.beaklib.drive.swerve.BeakSwerveModule;
 
-/** Add your docs here. */
+/** Drive based upon field-relative velocities. */
 public class BeakFieldCentricRequest implements BeakSwerveRequest {
     /**
      * The velocity in the X direction, in m/s.

@@ -10,7 +10,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.lib.beaklib.drive.swerve.BeakSwerveModule;
 
-/** Add your docs here. */
+/** Drive a swerve chassis based upon Chassis Speeds. */
 public class BeakChassisSpeedsDrive implements BeakSwerveRequest {
     /**
      * The chassis speeds to apply to the drivetrain.

@@ -20,8 +20,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import frc.lib.beaklib.encoder.BeakV6CANCoder;
-import frc.lib.beaklib.motor.BeakV6TalonFX;
+import frc.lib.beaklib.encoder.BeakCANCoder;
+import frc.lib.beaklib.motor.BeakTalonFX;
 
 /**
  * Extremely simplified swerve drive simulation class.
@@ -110,9 +110,9 @@ public class BeakSwerveSim {
         SwerveModuleState[] states = new SwerveModuleState[ModuleCount];
         /* Update our sim devices */
         for (int i = 0; i < ModuleCount; ++i) {
-            TalonFXSimState steerMotor = ( (BeakV6TalonFX) modulesToApply.get(i).getSteerMotor()).getSimState();
-            TalonFXSimState driveMotor = ( (BeakV6TalonFX) modulesToApply.get(i).getDriveMotor()).getSimState();
-            CANcoderSimState cancoder = ( (BeakV6CANCoder) modulesToApply.get(i).getSteerEncoder()).getSimState();
+            TalonFXSimState steerMotor = ( (BeakTalonFX) modulesToApply.get(i).getSteerMotor()).getSimState();
+            TalonFXSimState driveMotor = ( (BeakTalonFX) modulesToApply.get(i).getDriveMotor()).getSimState();
+            CANcoderSimState cancoder = ( (BeakCANCoder) modulesToApply.get(i).getSteerEncoder()).getSimState();
 
             steerMotor.Orientation = m_modules[i].SteerMotorInverted ? ChassisReference.Clockwise_Positive : ChassisReference.CounterClockwise_Positive;
             driveMotor.Orientation = m_modules[i].DriveMotorInverted ? ChassisReference.Clockwise_Positive : ChassisReference.CounterClockwise_Positive;

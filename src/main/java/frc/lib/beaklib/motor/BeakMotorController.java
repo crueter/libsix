@@ -44,6 +44,7 @@ public interface BeakMotorController extends MotorController {
     public void setCurrent(double amps);
 
     /**
+     * <p>
      * Run the motor in velocity mode.
      * </p>
      * 
@@ -60,6 +61,7 @@ public interface BeakMotorController extends MotorController {
     }
 
     /**
+     * <p>
      * Run the motor in velocity mode, based on an angular velocity target.
      * </p>
      * 
@@ -72,6 +74,7 @@ public interface BeakMotorController extends MotorController {
     }
 
     /**
+     * <p>
      * Run the motor in velocity mode, in NU.
      * </p>
      * NU/100ms for Talons, RPM for SparkMAX.
@@ -82,6 +85,7 @@ public interface BeakMotorController extends MotorController {
     public void setVelocityNU(double nu);
 
     /**
+     * <p>
      * Run the motor in position mode.
      * </p>
      * 
@@ -97,6 +101,7 @@ public interface BeakMotorController extends MotorController {
     }
 
     /**
+     * <p>
      * Run the motor to a specified angle.
      * </p>
      * 
@@ -110,6 +115,7 @@ public interface BeakMotorController extends MotorController {
     }
 
     /**
+     * <p>
      * Run the motor in position mode, in NU.
      * </p>
      * 2048 NU per rotation for TalonFX, 4096 for TalonSRX, and usually 1 for
@@ -121,6 +127,7 @@ public interface BeakMotorController extends MotorController {
     public void setPositionNU(double nu);
 
     /**
+     * <p>
      * Sets the encoder's position.
      * </p>
      * 
@@ -136,6 +143,7 @@ public interface BeakMotorController extends MotorController {
     }
 
     /**
+     * <p>
      * Sets the encoder's position, in motor rotations.
      * </p>
      * 
@@ -149,6 +157,7 @@ public interface BeakMotorController extends MotorController {
     }
 
     /**
+     * <p>
      * Sets the encoder's position, in NU.
      * </p>
      * 2048 NU per rotation for TalonFX, 4096 for TalonSRX, and usually 1 for
@@ -167,6 +176,7 @@ public interface BeakMotorController extends MotorController {
     }
 
     /**
+     * <p>
      * Run the motor in motion magic mode.
      * </p>
      * 
@@ -182,6 +192,7 @@ public interface BeakMotorController extends MotorController {
     }
 
     /**
+     * <p>
      * Runs the motor to a specified angle in motion magic mode.
      * </p>
      * 
@@ -195,6 +206,7 @@ public interface BeakMotorController extends MotorController {
     }
 
     /**
+     * <p>
      * Runs the motor in motion magic mode, in NU.
      * </p>
      * 2048 NU per rotation for TalonFX, 4096 for TalonSRX, and usually 1 for
@@ -283,6 +295,7 @@ public interface BeakMotorController extends MotorController {
     }
 
     /**
+     * <p>
      * Get the motor velocity, in NU.
      * </p>
      * NU/100ms for Talons, RPM for SparkMAX.
@@ -419,9 +432,11 @@ public interface BeakMotorController extends MotorController {
     /* CONVERSION API */
 
     /**
+     * <p>
      * Set the velocity conversion constant for this motor.
      * </p>
      * 
+     * <p>
      * The velocity conversion constant is a factor that, when dividing native
      * velocity units by the constant, outputs rotations per minute.
      * </p>
@@ -439,6 +454,7 @@ public interface BeakMotorController extends MotorController {
     public void setVelocityConversionConstant(double constant);
 
     /**
+     * <p>
      * Get the velocity conversion constant for this motor.
      * </p>
      * 
@@ -450,9 +466,11 @@ public interface BeakMotorController extends MotorController {
     public double getVelocityConversionConstant();
 
     /**
+     * <p>
      * Set the position conversion constant for this motor.
      * </p>
      * 
+     * <p>
      * The position conversion constant is a factor that, when dividing native
      * position units by the constant, outputs rotations.
      * </p>
@@ -470,6 +488,7 @@ public interface BeakMotorController extends MotorController {
     public void setPositionConversionConstant(double constant);
 
     /**
+     * <p>
      * Get the position conversion constant for this motor.
      * </p>
      * 
@@ -482,9 +501,11 @@ public interface BeakMotorController extends MotorController {
     public double getPositionConversionConstant();
 
     /**
+     * <p>
      * Set the gear ratio between the encoder and output shaft.
      * </p>
      * 
+     * <p>
      * This number represents the number of rotations of the motor shaft per
      * rotation of the output shaft. Therefore, if a motor has a 16:1 gearbox
      * attached, this value should be 16.
@@ -500,9 +521,11 @@ public interface BeakMotorController extends MotorController {
     public void setEncoderGearRatio(double ratio);
 
     /**
+     * <p>
      * Get the gear ratio between the encoder and output shaft.
      * </p>
      * 
+     * <p>
      * This number represents the number of rotations of the motor shaft per
      * rotation of the output shaft. Therefore, if a motor has a 16:1 gearbox
      * attached, this value should be 16.
@@ -517,6 +540,7 @@ public interface BeakMotorController extends MotorController {
     public double getEncoderGearRatio();
 
     /**
+     * <p>
      * Set the diameter of the wheel driven by this motor.
      * </p>
      * 
@@ -530,9 +554,11 @@ public interface BeakMotorController extends MotorController {
     public void setWheelDiameter(Measure<Distance> diameter);
 
     /**
+     * <p>
      * Get the diameter of the wheel driven by this motor.
      * </p>
      * 
+     * <p>
      * Multiply the number of motor rotations or RPM by this number to get the
      * distance travelled by this motor, or the linear speed of the wheel attached
      * to it. Divide the speed or distance by this number to get output shaft

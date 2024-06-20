@@ -9,7 +9,7 @@ import frc.lib.beaklib.pid.BeakPIDConstants;
 /** Constants of any drivetrain type. */
 public class DrivetrainConfiguration {
     public final BeakPIDConstants DrivePID;
-    public final BeakPIDConstants TurnPID;
+    public final BeakPIDConstants SteerPID;
 
     public final int SteerCurrentLimit;
     public final int DriveSupplyLimit;
@@ -31,8 +31,8 @@ public class DrivetrainConfiguration {
 
     /**
      * @param drivePID           PID constants for the drive motors
-     * @param turnPID            PID constants for the turn motors
-     * @param turnCurrentLimit   Supply/stator limits for the turn motors
+     * @param steerPID            PID constants for the steer motors
+     * @param steerCurrentLimit   Supply/stator limits for the steer motors
      * @param driveSupplyLimit   Supply limits for the drive motors
      * @param driveStatorLimit   Stator limits for the drive motors
      * @param canBus             The CAN Bus the drivetrain is attached to.
@@ -42,16 +42,16 @@ public class DrivetrainConfiguration {
      * @param trackWidth         Track width of the robot, in inches
      * @param wheelBase          Wheel base of the robot, in inches
      * @param wheelDiameter      Diameter of the wheels, in inches
-     * @param driveRatio         Ratio between the drive motor & output wheel (>1)
-     * @param turnRatio          Ratio between the turn motor & output bearing (>1)
+     * @param driveRatio         Ratio between the drive motor and output wheel (>1)
+     * @param steerRatio          Ratio between the steer motor and output bearing (>1)
      */
-    public DrivetrainConfiguration(BeakPIDConstants drivePID, BeakPIDConstants turnPID, int turnCurrentLimit,
+    public DrivetrainConfiguration(BeakPIDConstants drivePID, BeakPIDConstants steerPID, int steerCurrentLimit,
             int driveSupplyLimit, int driveStatorLimit, String canBus, double maxSpeed, double maxAngularVelocity,
             double maxAcceleration, double trackWidth, double wheelBase, double wheelDiameter, double driveRatio,
-            double turnRatio) {
+            double steerRatio) {
         DrivePID = drivePID;
-        TurnPID = turnPID;
-        SteerCurrentLimit = turnCurrentLimit;
+        SteerPID = steerPID;
+        SteerCurrentLimit = steerCurrentLimit;
         DriveSupplyLimit = driveSupplyLimit;
         DriveStatorLimit = driveStatorLimit;
         CANBus = canBus;
@@ -62,6 +62,6 @@ public class DrivetrainConfiguration {
         WheelBase = wheelBase;
         WheelDiameter = wheelDiameter;
         DriveRatio = driveRatio;
-        SteerRatio = turnRatio;
+        SteerRatio = steerRatio;
     }
 }

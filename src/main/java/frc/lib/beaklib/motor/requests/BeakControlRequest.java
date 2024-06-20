@@ -6,7 +6,7 @@ package frc.lib.beaklib.motor.requests;
 
 import frc.lib.beaklib.motor.BeakMotorController;
 
-/** Add your docs here. */
+/** Base class for motor control requests. */
 public class BeakControlRequest {
     public enum OutputType {
         Voltage,

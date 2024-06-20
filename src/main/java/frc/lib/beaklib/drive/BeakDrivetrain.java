@@ -140,15 +140,17 @@ public class BeakDrivetrain extends SubsystemBase {
     }
 
     /**
-     * Add a vision measurement directly from PhotonVision to the pose estimator's
+     * Add a vision measurement to the pose estimator's
      * Kalman filter.
      * 
-     * @param estimatedPose The {@link EstimatedRobotPose} from PhotonVision.
+     * @param estimatedPose The estimated pose of the robot from the vision system.
+     * @param timestamp The timestamp of the received data.
      */
     public void addVisionMeasurement(Pose2d estimatedPose, double timestamp) {
     }
 
     /**
+     * <p>
      * Get the angle to a target position on the field.
      * </p>
      * 

@@ -59,8 +59,8 @@ import frc.lib.beaklib.motor.requests.BeakControlRequest.OutputType;
 import frc.lib.beaklib.motor.configs.BeakHardwareLimitSwitchConfigs.BeakLimitSwitchSource;
 import frc.lib.beaklib.pid.BeakPIDConstants;
 
-/** Add your docs here. */
-public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
+/** BeakLib implementation of the CTRE Talon FX. */
+public class BeakTalonFX extends TalonFX implements BeakMotorController {
     private TalonFXConfigurator m_configurator;
     private TalonFXConfiguration m_config = new TalonFXConfiguration();
 
@@ -93,13 +93,13 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     private BeakLimitSwitchSource m_forwardSource = BeakLimitSwitchSource.None;
     private BeakLimitSwitchSource m_reverseSource = BeakLimitSwitchSource.None;
 
-    public BeakV6TalonFX(int port, String canBus) {
+    public BeakTalonFX(int port, String canBus) {
         super(port, canBus);
         m_configurator = super.getConfigurator();
         m_configurator.refresh(m_config);
     }
 
-    public BeakV6TalonFX(int port) {
+    public BeakTalonFX(int port) {
         this(port, "");
     }
 

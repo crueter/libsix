@@ -22,16 +22,10 @@ public class SwerveModuleConfiguration {
      *            Zero offset of this module.
      * @param moduleLocation
      *            Translation from the center of the robot to this module.
-     * @param driveGearRatio
-     *            Gear ratio between the drive motor and wheel.
-     * @param turnGearRatio
-     *            Gear ratio between the turning motor and wheel.
-     * @param wheelDiameter
-     *            Diameter of the wheel.
      * @param driveInverted
      *            Whether or not the drive motor is inverted.
-     * @param turnInverted
-     *            Whether or not the turning motor is inverted.
+     * @param steerInverted
+     *            Whether or not the steer motor is inverted.
      * @param driveConfig
      *            {@link DrivetrainConfiguration} of the drivetrain this
      *            module is on.
@@ -40,7 +34,7 @@ public class SwerveModuleConfiguration {
         Rotation2d angleOffset,
         Translation2d moduleLocation,
         boolean driveInverted,
-        boolean turnInverted,
+        boolean steerInverted,
         DrivetrainConfiguration driveConfig) {
         this.DriveConfig = driveConfig;
 
@@ -48,6 +42,6 @@ public class SwerveModuleConfiguration {
         this.ModuleLocation = moduleLocation;
 
         this.DriveInverted = driveInverted;
-        this.SteerInverted = turnInverted;
+        this.SteerInverted = steerInverted;
     }
 }

@@ -11,7 +11,7 @@ import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
 import frc.lib.beaklib.motor.DataSignal;
 
-/** Standard WPILib Gyro with pitch & roll methods. */
+/** Standard WPILib Gyro with pitch and roll methods. */
 public interface BeakGyro {
     /**
      * Return the pitch of the robot.

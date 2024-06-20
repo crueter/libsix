@@ -19,15 +19,15 @@ import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
 import frc.lib.beaklib.motor.DataSignal;
 
-/** Add your docs here. */
-public class BeakV6CANCoder extends CANcoder implements BeakAbsoluteEncoder {
+/** BeakLib implementation of the CTRE CANCoder. */
+public class BeakCANCoder extends CANcoder implements BeakAbsoluteEncoder {
     CANcoderConfigurator m_configurator;
 
-    public BeakV6CANCoder(int port) {
+    public BeakCANCoder(int port) {
         this(port, "");
     }
 
-    public BeakV6CANCoder(int port, String canBus) {
+    public BeakCANCoder(int port, String canBus) {
         super(port, canBus);
 
         m_configurator = super.getConfigurator();

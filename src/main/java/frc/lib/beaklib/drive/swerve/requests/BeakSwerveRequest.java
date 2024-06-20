@@ -12,7 +12,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import frc.lib.beaklib.drive.swerve.BeakSwerveModule;
 
-/** Add your docs here. */
+/** Base interface for swerve requests. */
 public interface BeakSwerveRequest {
     public class SwerveControlRequestParameters {
         public SwerveDriveKinematics kinematics;

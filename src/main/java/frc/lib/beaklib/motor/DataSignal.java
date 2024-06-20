@@ -12,7 +12,7 @@ import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.wpilibj.Timer;
 import frc.lib.beaklib.CTRESignalStore;
 
-/** Add your docs here. */
+/** Specifies methods to grab a value and its timestamp. */
 public class DataSignal<T> {
     private final Supplier<T> m_value;
     private final Supplier<Double> m_timestamp;

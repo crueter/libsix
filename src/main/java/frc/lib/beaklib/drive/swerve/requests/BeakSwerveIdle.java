@@ -8,7 +8,7 @@ import java.util.List;
 
 import frc.lib.beaklib.drive.swerve.BeakSwerveModule;
 
-/** Add your docs here. */
+/** Do nothing. */
 public class BeakSwerveIdle implements BeakSwerveRequest {
 
     @Override
