@@ -46,7 +46,7 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
     protected SwerveDrivePoseEstimator m_odom;
     protected SwerveDriveKinematics m_kinematics;
 
-    protected BeakChassisSpeedsDrive m_chassisSpeedsDrive = new BeakChassisSpeedsDrive().withDriveRequestType(DriveRequestType.VoltageFOC);
+    protected BeakChassisSpeedsDrive m_chassisSpeedsDrive = new BeakChassisSpeedsDrive().withDriveRequestType(DriveRequestType.Velocity);
 
     protected BeakSwerveRequest m_currentRequest = new BeakSwerveIdle();
     protected SwerveControlRequestParameters m_requestParameters = new SwerveControlRequestParameters();
@@ -85,7 +85,7 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
         m_requestParameters.swervePositions = getModuleLocations();
         m_requestParameters.updatePeriod = 1.0 / 50.0;
 
-        m_simDrive = new BeakSwerveSim(getModuleLocations(), (BeakV6Pigeon2) m_gyro, m_config, m_modules);
+        // m_simDrive = new BeakSwerveSim(getModuleLocations(), (BeakV6Pigeon2) m_gyro, m_config, m_modules);
 
         resetSteering();
     }

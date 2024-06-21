@@ -4,12 +4,23 @@
 
 package frc.robot;
 
-import com.revrobotics.REVPhysicsSim;
+import static edu.wpi.first.units.Units.*;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.REVPhysicsSim;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkLowLevel.MotorType;
+
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.beaklib.CTRESignalStore;
+import frc.lib.beaklib.motor.BeakSparkMAX;
+import frc.lib.beaklib.pid.BeakPIDConstants;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -21,6 +32,12 @@ import frc.lib.beaklib.CTRESignalStore;
 public class Robot extends TimedRobot {
     private Command autonomousCommand;
     private RobotContainer robotContainer;
+
+    // private BeakSparkMAX m_motor = new BeakSparkMAX(1);
+    // private CANSparkMax m_motor = new CANSparkMax(1, MotorType.kBrushless);
+    // private RelativeEncoder m_encoder = m_motor.getEncoder();
+    // private SparkPIDController m_pid = m_motor.getPIDController();
+
     // private LEDs m_leds;
 
     /**
@@ -32,6 +49,11 @@ public class Robot extends TimedRobot {
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our autonomous chooser on the dashboard.
         robotContainer = new RobotContainer();
+        // m_motor.restoreFactoryDefaults();
+        // m_motor.setPID(new BeakPIDConstants(0.0001).withkV(0.000169));
+        // m_motor.setEncoderGearRatio(20);
+        // m_encoder.setPosition(0);
+        // m_pid.setP(0.0006);
     }
 
     /** This function is called periodically during all modes. */
@@ -43,7 +65,13 @@ public class Robot extends TimedRobot {
         // This must be called from the robot's periodic block in order for anything in
         // the Command-based framework to work.
         CommandScheduler.getInstance().run();
-        CTRESignalStore.update();
+        // CTRESignalStore.update();
+        // m_motor.setAngle(Rotation2d.fromDegrees(90.0));
+        // m_motor.setVelocity(MetersPerSecond.of(1.0));
+        // m_motor.setVelocityNU(3000);
+        // SmartDashboard.putNumber("sneed", m_motor.getVelocityNU().getValue());
+        // m_pid.setReference(3000, ControlType.kVelocity);
+        // SmartDashboard.putNumber("sneed", m_encoder.getVelocity());
     }
 
     /** This function is called once when the robot is disabled. */
@@ -81,6 +109,9 @@ public class Robot extends TimedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
+
+        // m_motor.setEncoderPositionNU(0);
+
     }
 
     /** This function is called periodically during operator control. */

@@ -5,6 +5,7 @@
 package frc.lib.beaklib.motor.requests.position;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.beaklib.motor.BeakMotorController;
 import frc.lib.beaklib.motor.requests.BeakControlRequest;
 
@@ -23,7 +24,7 @@ public class BeakPositionAngle extends BeakControlRequest {
     /**
      * Output value (current, voltage, duty cycle)
      */
-    public OutputType Output;
+    public OutputType Output = OutputType.Voltage;
 
     public BeakPositionAngle() {
     }

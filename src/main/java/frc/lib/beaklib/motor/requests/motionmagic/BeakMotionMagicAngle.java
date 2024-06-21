@@ -23,7 +23,7 @@ public class BeakMotionMagicAngle extends BeakControlRequest {
     /**
      * Output value (current, voltage, duty cycle)
      */
-    public OutputType Output;
+    public OutputType Output = OutputType.Voltage;
 
     public BeakMotionMagicAngle() {
     }

@@ -15,9 +15,12 @@ import com.revrobotics.SparkLimitSwitch;
 import com.revrobotics.SparkLimitSwitch.Type;
 import com.revrobotics.SparkPIDController;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.beaklib.motor.configs.BeakClosedLoopConfigs;
 import frc.lib.beaklib.motor.configs.BeakCurrentLimitConfigs;
 import frc.lib.beaklib.motor.configs.BeakDutyCycleConfigs;
@@ -75,6 +78,7 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
 
     @Override
     public void setPositionNU(double nu) {
+        SmartDashboard.putNumber("PID " + super.getDeviceId(), nu - m_relativeEncoder.getPosition());
         m_pid.setReference(nu, ControlType.kPosition, m_slot, m_arbFeedforward);
     }
 

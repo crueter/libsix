@@ -15,6 +15,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.beaklib.encoder.BeakAbsoluteEncoder;
 import frc.lib.beaklib.motor.BeakMotorController;
 import frc.lib.beaklib.motor.DataSignal;
@@ -58,7 +59,8 @@ public class BeakSwerveModule {
     protected DataSignal<Rotation2d> m_steerMotorAngle;
     protected DataSignal<Rotation2d> m_absoluteAngle;
     protected DataSignal<Measure<Distance>> m_driveDistance;
-    protected DataSignal<Measure<Velocity<Distance>>> m_driveSpeed;
+    // protected DataSignal<Measure<Velocity<Distance>>> m_driveSpeed;
+    protected DataSignal<Double> m_driveSpeed;
 
     /**
      * Construct a new Swerve Module.
@@ -94,6 +96,8 @@ public class BeakSwerveModule {
         m_driveMotor.setBrake(true);
         m_driveMotor.setInverted(Config.DriveInverted);
 
+        m_driveMotor.setNominalVoltage(12.0);
+
         // Prevent the motors from drawing several hundred amps of current,
         // and allow them to run at the same speed even when voltage drops.
         // System.err.println(Config.DriveInverted);
@@ -103,8 +107,9 @@ public class BeakSwerveModule {
 
         // Configure PID
         m_driveMotor.setPID(Config.DriveConfig.DrivePID);
+        System.out.println(Config.DriveConfig.SteerPID.kP);
 
-        m_driveSpeed = m_driveMotor.getSpeed();
+        m_driveSpeed = m_driveMotor.getVelocityNU();
         m_driveDistance = m_driveMotor.getDistance(true);
     }
 
@@ -122,6 +127,8 @@ public class BeakSwerveModule {
         // This is done to prevent stalls from killing the motor.
         m_steerMotor.applyConfig(m_steerCurrentLimits
                 .withSupplyCurrentLimit(Config.DriveConfig.SteerCurrentLimit));
+
+        m_steerMotor.setNominalVoltage(12.0);
 
         m_steerMotor.setPID(Config.DriveConfig.SteerPID);
 
@@ -159,7 +166,7 @@ public class BeakSwerveModule {
      */
     public SwerveModuleState getState() {
         return new SwerveModuleState(
-                m_driveSpeed.getValue().in(MetersPerSecond),
+                m_driveSpeed.getValue(),//.in(MetersPerSecond),
                 new Rotation2d(getAbsoluteEncoderRadians())); // FUTURE: Using Absolute reverses some wheels.
     }
 
@@ -226,7 +233,7 @@ public class BeakSwerveModule {
      * @param driveRequestType The {@link DriveRequestType} to apply
      */
     public void apply(SwerveModuleState state, DriveRequestType driveRequestType) {
-        apply(state, driveRequestType, SteerRequestType.MotionMagic);
+        apply(state, driveRequestType, SteerRequestType.Position);
     }
 
     /**
@@ -240,7 +247,10 @@ public class BeakSwerveModule {
     public void apply(SwerveModuleState state, DriveRequestType driveRequestType, SteerRequestType steerRequestType) {
         var optimized = SwerveModuleState.optimize(state, m_steerMotorAngle.getValue());
 
-        double angleToSetDeg = optimized.angle.getRotations();
+        double angleToSetDeg = optimized.angle.getDegrees();
+
+        // m_steerMotor.setAngle(Rotation2d.fromDegrees(angleToSetDeg));
+        // m_steerMotor.setControl(m_positionAngle.withAngle(Rotation2d.fromDegrees(angleToSetDeg)));
         switch (steerRequestType) {
             case MotionMagic:
                 m_steerMotor.setControl(m_motionMagicAngle.withAngle(Rotation2d.fromDegrees(angleToSetDeg)));
@@ -250,8 +260,9 @@ public class BeakSwerveModule {
                         m_motionMagicAngle.withAngle(Rotation2d.fromDegrees(angleToSetDeg)).withUseFOC(true));
                 break;
             case Position:
-                m_steerMotor.setControl(
-                        m_positionAngle.withAngle(Rotation2d.fromDegrees(angleToSetDeg)));
+                SmartDashboard.putNumber("Position " + Config.ModuleLocation.getAngle(), m_steerMotor.getPositionNU(false).getValue());
+
+                m_steerMotor.setControl(m_positionAngle.withAngle(Rotation2d.fromDegrees(angleToSetDeg)));
                 break;
             case PositionFOC:
                 m_steerMotor.setControl(
@@ -273,7 +284,7 @@ public class BeakSwerveModule {
          * If the error is close to 0.25 rotations, then we're 90 degrees, so movement
          * doesn't help us at all
          */
-        double cosineScalar = Math.cos(Units.rotationsToRadians(steerMotorError));
+        double cosineScalar = Math.cos(Units.degreesToRadians(steerMotorError));
 
         /*
          * Make sure we don't invert our drive, even though we shouldn't ever target
@@ -288,9 +299,17 @@ public class BeakSwerveModule {
 
         switch (driveRequestType) {
             case Voltage:
+                SmartDashboard.putNumber("Volts", volts);
+                SmartDashboard.putNumber("volts " + Config.ModuleLocation.getAngle(), volts);
                 m_driveMotor.setControl(m_voltage.withVoltage(volts));
+                // m_driveMotor.setVoltage(volts);
+                // m_driveMotor.set(volts / 12.0);
                 break;
             case VoltageFOC:
+                // SmartDashboard.putNumber("Volts ", volts);
+                // m_driveMotor.setControl(m_voltage.withVoltage(volts));
+                // m_driveMotor.setVoltage(volts);
+
                 m_driveMotor.setControl(m_voltage.withVoltage(volts).withUseFOC(true));
                 break;
             case Velocity:

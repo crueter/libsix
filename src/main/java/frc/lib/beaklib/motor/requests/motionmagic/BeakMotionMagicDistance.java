@@ -26,7 +26,7 @@ public class BeakMotionMagicDistance extends BeakControlRequest {
     /**
      * Output value (current, voltage, duty cycle)
      */
-    public OutputType Output;
+    public OutputType Output = OutputType.Voltage;
 
     public BeakMotionMagicDistance() {
     }
