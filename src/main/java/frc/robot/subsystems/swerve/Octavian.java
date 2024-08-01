@@ -4,12 +4,12 @@
 
 package frc.robot.subsystems.swerve;
 
-import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
-import frc.lib.beaklib.drive.swerve.DrivetrainConfiguration;
-import frc.lib.beaklib.drive.swerve.SwerveModuleConfiguration;
-import frc.lib.beaklib.drive.swerve.requests.BeakSwerveRequest;
-import frc.lib.beaklib.gyro.BeakNavX;
-import frc.lib.beaklib.pid.BeakPIDConstants;
+import frc.lib.six.drive.DrivetrainConfiguration;
+import frc.lib.six.drive.swerve.SixSwerveDrivetrain;
+import frc.lib.six.drive.swerve.SwerveModuleConfiguration;
+import frc.lib.six.drive.swerve.requests.SixSwerveRequest;
+import frc.lib.six.gyro.SixNavX;
+import frc.lib.six.pid.SixPIDConstants;
 
 import java.util.function.Supplier;
 
@@ -24,12 +24,12 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** Add your docs here. */
-public class Octavian extends BeakSwerveDrivetrain {
+public class Octavian extends SixSwerveDrivetrain {
     // Kalman Filter Configuration. These can be "tuned-to-taste" based on how much
     // you trust your various sensors. Smaller numbers will cause the filter to
     // "trust" the estimate from that particular component more than the others.
@@ -53,8 +53,8 @@ public class Octavian extends BeakSwerveDrivetrain {
     private static final Vector<N3> m_visionMeasurementStdDevs = VecBuilder.fill(0.1, 0.1,
         Units.degreesToRadians(25));
 
-    private static final BeakPIDConstants DRIVE_PID = new BeakPIDConstants(0.0001).withkV(0.000169);
-    private static final BeakPIDConstants STEER_PID = new BeakPIDConstants(0.25).withkV(0.0);
+    private static final SixPIDConstants DRIVE_PID = new SixPIDConstants(0.0001).withkV(0.000169);
+    private static final SixPIDConstants STEER_PID = new SixPIDConstants(0.25).withkV(0.0);
 
     private static final SPI.Port NAVX_PORT = SPI.Port.kMXP;
     private static final String CAN_BUS = "rio";
@@ -114,7 +114,7 @@ public class Octavian extends BeakSwerveDrivetrain {
     private static final int DRIVE_SUPPLY_LIMIT = 60;
     private static final int DRIVE_STATOR_LIMIT = 0;
 
-    private final static BeakNavX m_gyro = new BeakNavX(NAVX_PORT);
+    private final static SixNavX m_gyro = new SixNavX(NAVX_PORT);
 
     private static final DrivetrainConfiguration DRIVE_CONFIG = new DrivetrainConfiguration(
         DRIVE_PID, STEER_PID, STEER_CURRENT_LIMIT, DRIVE_SUPPLY_LIMIT, DRIVE_STATOR_LIMIT, CAN_BUS, MAX_VELOCITY, 2 * Math.PI, MAX_ACCEL, TRACK_WIDTH, WHEEL_BASE, WHEEL_DIAMETER, DRIVE_RATIO, STEER_RATIO);
@@ -210,7 +210,7 @@ public class Octavian extends BeakSwerveDrivetrain {
         SmartDashboard.putNumber("Velocity", super.getForwardVelocity());
     }
 
-    public Command applyRequest(Supplier<BeakSwerveRequest> request) {
+    public Command applyRequest(Supplier<SixSwerveRequest> request) {
         return run(() -> setControl(request.get()));
     }
 

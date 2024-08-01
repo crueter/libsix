@@ -4,13 +4,13 @@
 
 package frc.robot.subsystems.swerve;
 
-import frc.lib.beaklib.drive.swerve.BeakSwerveModule;
-import frc.lib.beaklib.drive.swerve.SwerveModuleConfiguration;
-import frc.lib.beaklib.encoder.BeakCANCoder;
-import frc.lib.beaklib.motor.BeakTalonFX;
+import frc.lib.six.drive.swerve.SixSwerveModule;
+import frc.lib.six.drive.swerve.SwerveModuleConfiguration;
+import frc.lib.six.encoder.SixCANCoder;
+import frc.lib.six.motor.SixTalonFX;
 
 /** Add your docs here. */
-public class MK4iSwerveModule extends BeakSwerveModule {
+public class MK4iSwerveModule extends SixSwerveModule {
     public MK4iSwerveModule(
         int driveMotorPort,
         int steerMotorPort,
@@ -18,10 +18,10 @@ public class MK4iSwerveModule extends BeakSwerveModule {
         SwerveModuleConfiguration config) {
         super(config);
 
-        BeakTalonFX driveMotor = new BeakTalonFX(driveMotorPort, config.DriveConfig.CANBus);
-        BeakTalonFX steerMotor = new BeakTalonFX(steerMotorPort, config.DriveConfig.CANBus);
+        SixTalonFX driveMotor = new SixTalonFX(driveMotorPort, config.DriveConfig.CANBus);
+        SixTalonFX steerMotor = new SixTalonFX(steerMotorPort, config.DriveConfig.CANBus);
 
-        BeakCANCoder steerEncoder = new BeakCANCoder(encoderPort, config.DriveConfig.CANBus);
+        SixCANCoder steerEncoder = new SixCANCoder(encoderPort, config.DriveConfig.CANBus);
 
         super.setup(driveMotor, steerMotor, steerEncoder);
     }

@@ -11,15 +11,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import frc.lib.beaklib.BeakXBoxController;
-import frc.lib.beaklib.Util;
-import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
-import frc.lib.beaklib.drive.swerve.requests.BeakSwerveRequest;
-import frc.lib.beaklib.drive.swerve.requests.BeakXDrive;
-import frc.robot.subsystems.Drivetrain;
+import frc.lib.six.SixXBoxController;
+import frc.lib.six.Util;
+import frc.lib.six.drive.swerve.requests.SixSwerveRequest;
+import frc.lib.six.drive.swerve.requests.SixXDrive;
 import frc.robot.subsystems.swerve.Octavian;
-// import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.swerve.SwerveDrivetrain;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -30,18 +26,18 @@ import frc.robot.subsystems.swerve.SwerveDrivetrain;
  */
 public class RobotContainer {
     // Subsystems
-    // private final BeakSwerveDrivetrain m_drive;
+    // private final SixSwerveDrivetrain m_drive;
     private final Octavian m_drive;
 
     // Controller
-    private final BeakXBoxController m_driverController = new BeakXBoxController(0);
+    private final SixXBoxController m_driverController = new SixXBoxController(0);
 
     // Limiters, etc.
     private final SlewRateLimiter m_xLimiter = new SlewRateLimiter(4.0);
     private final SlewRateLimiter m_yLimiter = new SlewRateLimiter(4.0);
     private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(4.0);
 
-    private final BeakSwerveRequest xDrive = new BeakXDrive();
+    private final SixSwerveRequest xDrive = new SixXDrive();
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.

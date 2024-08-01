@@ -13,18 +13,18 @@ import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotMotor;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotWheelSize;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.lib.beaklib.drive.BeakDifferentialDrivetrain;
-import frc.lib.beaklib.drive.swerve.DrivetrainConfiguration;
-import frc.lib.beaklib.gyro.BeakNavX;
-import frc.lib.beaklib.motor.BeakMotorControllerGroup;
-import frc.lib.beaklib.motor.BeakTalonSRX;
-import frc.lib.beaklib.pid.BeakPIDConstants;
+import frc.lib.six.drive.DrivetrainConfiguration;
+import frc.lib.six.drive.tank.SixDifferentialDrivetrain;
+import frc.lib.six.gyro.SixNavX;
+import frc.lib.six.motor.SixMotorControllerGroup;
+import frc.lib.six.motor.SixTalonSRX;
+import frc.lib.six.pid.SixPIDConstants;
 
-public class Drivetrain extends BeakDifferentialDrivetrain {
+public class Drivetrain extends SixDifferentialDrivetrain {
     private static final double kP = 0.05;
     private static final double kD = 0.0;
 
-    private static final BeakPIDConstants DRIVE_PID = new BeakPIDConstants(kP, 0., kD);
+    private static final SixPIDConstants DRIVE_PID = new SixPIDConstants(kP, 0., kD);
 
     private static final int FL_ID = 1;
     private static final int BL_ID = 2;
@@ -59,23 +59,23 @@ public class Drivetrain extends BeakDifferentialDrivetrain {
             WHEEL_BASE,
             WHEEL_DIAMETER, GEAR_RATIO, 0.0);
 
-    private final BeakNavX m_gyro = new BeakNavX(SPI.Port.kMXP);
+    private final SixNavX m_gyro = new SixNavX(SPI.Port.kMXP);
 
-    private final BeakTalonSRX m_FL, m_BL, m_FR, m_BR;
-    private final BeakMotorControllerGroup m_left;
-    private final BeakMotorControllerGroup m_right;
+    private final SixTalonSRX m_FL, m_BL, m_FR, m_BR;
+    private final SixMotorControllerGroup m_left;
+    private final SixMotorControllerGroup m_right;
 
     /** Creates a new Drivetrain. */
     public Drivetrain() {
         super(CONFIG);
 
-        m_FL = new BeakTalonSRX(FL_ID);
-        m_FR = new BeakTalonSRX(FR_ID);
-        m_BL = new BeakTalonSRX(BL_ID);
-        m_BR = new BeakTalonSRX(BR_ID);
+        m_FL = new SixTalonSRX(FL_ID);
+        m_FR = new SixTalonSRX(FR_ID);
+        m_BL = new SixTalonSRX(BL_ID);
+        m_BR = new SixTalonSRX(BR_ID);
 
-        m_left = new BeakMotorControllerGroup(m_FL, m_BL);
-        m_right = new BeakMotorControllerGroup(m_FR, m_BR);
+        m_left = new SixMotorControllerGroup(m_FL, m_BL);
+        m_right = new SixMotorControllerGroup(m_FR, m_BR);
 
         m_right.setInverted(true);
 

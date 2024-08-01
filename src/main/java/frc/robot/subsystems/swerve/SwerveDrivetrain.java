@@ -4,11 +4,11 @@
 
 package frc.robot.subsystems.swerve;
 
-import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
-import frc.lib.beaklib.drive.swerve.DrivetrainConfiguration;
-import frc.lib.beaklib.drive.swerve.SwerveModuleConfiguration;
-import frc.lib.beaklib.gyro.BeakV6Pigeon2;
-import frc.lib.beaklib.pid.BeakPIDConstants;
+import frc.lib.six.drive.DrivetrainConfiguration;
+import frc.lib.six.drive.swerve.SixSwerveDrivetrain;
+import frc.lib.six.drive.swerve.SwerveModuleConfiguration;
+import frc.lib.six.gyro.SixV6Pigeon2;
+import frc.lib.six.pid.SixPIDConstants;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 
@@ -23,7 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /** Add your docs here. */
-public class SwerveDrivetrain extends BeakSwerveDrivetrain {
+public class SwerveDrivetrain extends SixSwerveDrivetrain {
     // Kalman Filter Configuration. These can be "tuned-to-taste" based on how much
     // you trust your various sensors. Smaller numbers will cause the filter to
     // "trust" the estimate from that particular component more than the others.
@@ -47,8 +47,8 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final Vector<N3> m_visionMeasurementStdDevs = VecBuilder.fill(0.1, 0.1,
         Units.degreesToRadians(25));
 
-    private static final BeakPIDConstants DRIVE_PID = new BeakPIDConstants(0.05, 0.0, 0.0, 0.1, 0.2);
-    private static final BeakPIDConstants STEER_PID = new BeakPIDConstants(2.0).withkV(0.0);
+    private static final SixPIDConstants DRIVE_PID = new SixPIDConstants(0.05, 0.0, 0.0, 0.1, 0.2);
+    private static final SixPIDConstants STEER_PID = new SixPIDConstants(2.0).withkV(0.0);
 
     private static final int PIGEON2_ID = 0;
     private static final String CAN_BUS = "rio";
@@ -108,7 +108,7 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final int DRIVE_SUPPLY_LIMIT = 75;
     private static final int DRIVE_STATOR_LIMIT = 80;
 
-    private final static BeakV6Pigeon2 m_gyro = new BeakV6Pigeon2(PIGEON2_ID, CAN_BUS);
+    private final static SixV6Pigeon2 m_gyro = new SixV6Pigeon2(PIGEON2_ID, CAN_BUS);
 
     private static final DrivetrainConfiguration DRIVE_CONFIG = new DrivetrainConfiguration(
         DRIVE_PID, STEER_PID, STEER_CURRENT_LIMIT, DRIVE_SUPPLY_LIMIT, DRIVE_STATOR_LIMIT, CAN_BUS, MAX_VELOCITY, 2 * Math.PI, MAX_ACCEL, TRACK_WIDTH, WHEEL_BASE, WHEEL_DIAMETER, DRIVE_RATIO, STEER_RATIO);

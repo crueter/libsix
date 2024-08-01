@@ -4,13 +4,13 @@
 
 package frc.robot.subsystems.swerve;
 
-import frc.lib.beaklib.drive.swerve.BeakSwerveModule;
-import frc.lib.beaklib.drive.swerve.SwerveModuleConfiguration;
-import frc.lib.beaklib.encoder.BeakAnalogInput;
-import frc.lib.beaklib.motor.BeakSparkMAX;
+import frc.lib.six.drive.swerve.SixSwerveModule;
+import frc.lib.six.drive.swerve.SwerveModuleConfiguration;
+import frc.lib.six.encoder.SixAnalogInput;
+import frc.lib.six.motor.SixSparkMAX;
 
 /** Add your docs here. */
-public class MK2SwerveModule extends BeakSwerveModule {
+public class MK2SwerveModule extends SixSwerveModule {
     public MK2SwerveModule(
         int driveMotorPort,
         int steerMotorPort,
@@ -18,13 +18,13 @@ public class MK2SwerveModule extends BeakSwerveModule {
         SwerveModuleConfiguration config) {
         super(config);
 
-        BeakSparkMAX driveMotor = new BeakSparkMAX(driveMotorPort);
-        BeakSparkMAX steerMotor = new BeakSparkMAX(steerMotorPort);
+        SixSparkMAX driveMotor = new SixSparkMAX(driveMotorPort);
+        SixSparkMAX steerMotor = new SixSparkMAX(steerMotorPort);
 
         driveMotor.restoreFactoryDefaults();
         steerMotor.restoreFactoryDefaults();
 
-        BeakAnalogInput steerEncoder = new BeakAnalogInput(encoderPort);
+        SixAnalogInput steerEncoder = new SixAnalogInput(encoderPort);
 
         super.setup(driveMotor, steerMotor, steerEncoder);
     }
