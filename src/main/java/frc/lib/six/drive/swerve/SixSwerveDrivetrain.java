@@ -46,7 +46,7 @@ public class SixSwerveDrivetrain extends SixDrivetrain {
     protected SwerveDrivePoseEstimator m_odom;
     protected SwerveDriveKinematics m_kinematics;
 
-    protected SixChassisSpeedsDrive m_chassisSpeedsDrive = new SixChassisSpeedsDrive().withDriveRequestType(DriveRequestType.Velocity);
+    protected SixChassisSpeedsDrive m_chassisSpeedsDrive = new SixChassisSpeedsDrive().withDriveRequestType(DriveRequestType.Voltage);
 
     protected SixSwerveRequest m_currentRequest = new SixSwerveIdle();
     protected SwerveControlRequestParameters m_requestParameters = new SwerveControlRequestParameters();
@@ -147,7 +147,7 @@ public class SixSwerveDrivetrain extends SixDrivetrain {
      * @param supplyVoltage voltage as seen at the motor controllers
      */
     public void updateSimState(double dtSeconds, double supplyVoltage) {
-        m_simDrive.update(dtSeconds, supplyVoltage, m_modules);
+        // m_simDrive.update(dtSeconds, supplyVoltage, m_modules);
     }
 
     /* Swerve-specific Methods */

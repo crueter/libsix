@@ -16,12 +16,12 @@ import edu.wpi.first.units.Velocity;
 import frc.lib.six.motor.DataSignal;
 
 /** A v6 CTRE Pigeon 2 implemented as a SixGyro. */
-public class SixV6Pigeon2 extends Pigeon2 implements SixGyro {
-    public SixV6Pigeon2(int port) {
+public class SixPigeon2 extends Pigeon2 implements SixGyro {
+    public SixPigeon2(int port) {
         super(port);
     }
 
-    public SixV6Pigeon2(int port, String canBus) {
+    public SixPigeon2(int port, String canBus) {
         super(port, canBus);
     }
 

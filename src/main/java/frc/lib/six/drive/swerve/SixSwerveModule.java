@@ -14,7 +14,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.six.encoder.SixAbsoluteEncoder;
 import frc.lib.six.motor.SixMotorController;
 import frc.lib.six.motor.DataSignal;
@@ -84,6 +83,7 @@ public class SixSwerveModule {
         m_steerEncoder = steerEncoder;
 
         configSteerEncoder();
+
         configSteerMotor();
         configDriveMotor();
     }
@@ -127,7 +127,7 @@ public class SixSwerveModule {
         m_steerMotor.applyConfig(m_steerCurrentLimits
                 .withSupplyCurrentLimit(Config.DriveConfig.SteerCurrentLimit));
 
-        m_steerMotor.setNominalVoltage(12.0);
+        // m_steerMotor.setNominalVoltage(12.0);
 
         m_steerMotor.setPID(Config.DriveConfig.SteerPID);
 
@@ -165,7 +165,7 @@ public class SixSwerveModule {
      */
     public SwerveModuleState getState() {
         return new SwerveModuleState(
-                m_driveSpeed.getValue(),//.in(MetersPerSecond),
+                m_driveSpeed.getValue(), // .in(MetersPerSecond),
                 new Rotation2d(getAbsoluteEncoderRadians())); // FUTURE: Using Absolute reverses some wheels.
     }
 
@@ -248,8 +248,6 @@ public class SixSwerveModule {
 
         double angleToSetDeg = optimized.angle.getDegrees();
 
-        // m_steerMotor.setAngle(Rotation2d.fromDegrees(angleToSetDeg));
-        // m_steerMotor.setControl(m_positionAngle.withAngle(Rotation2d.fromDegrees(angleToSetDeg)));
         switch (steerRequestType) {
             case MotionMagic:
                 m_steerMotor.setControl(m_motionMagicAngle.withAngle(Rotation2d.fromDegrees(angleToSetDeg)));
@@ -259,8 +257,6 @@ public class SixSwerveModule {
                         m_motionMagicAngle.withAngle(Rotation2d.fromDegrees(angleToSetDeg)).withUseFOC(true));
                 break;
             case Position:
-                SmartDashboard.putNumber("Position " + Config.ModuleLocation.getAngle(), m_steerMotor.getPositionNU(false).getValue());
-
                 m_steerMotor.setControl(m_positionAngle.withAngle(Rotation2d.fromDegrees(angleToSetDeg)));
                 break;
             case PositionFOC:
@@ -298,17 +294,9 @@ public class SixSwerveModule {
 
         switch (driveRequestType) {
             case Voltage:
-                SmartDashboard.putNumber("Volts", volts);
-                SmartDashboard.putNumber("volts " + Config.ModuleLocation.getAngle(), volts);
                 m_driveMotor.setControl(m_voltage.withVoltage(volts));
-                // m_driveMotor.setVoltage(volts);
-                // m_driveMotor.set(volts / 12.0);
                 break;
             case VoltageFOC:
-                // SmartDashboard.putNumber("Volts ", volts);
-                // m_driveMotor.setControl(m_voltage.withVoltage(volts));
-                // m_driveMotor.setVoltage(volts);
-
                 m_driveMotor.setControl(m_voltage.withVoltage(volts).withUseFOC(true));
                 break;
             case Velocity:

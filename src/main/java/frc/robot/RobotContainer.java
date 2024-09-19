@@ -15,6 +15,7 @@ import frc.lib.six.SixXBoxController;
 import frc.lib.six.Util;
 import frc.lib.six.drive.swerve.requests.SixSwerveRequest;
 import frc.lib.six.drive.swerve.requests.SixXDrive;
+import frc.robot.subsystems.swerve.Jerry;
 import frc.robot.subsystems.swerve.Octavian;
 
 /**
@@ -27,7 +28,8 @@ import frc.robot.subsystems.swerve.Octavian;
 public class RobotContainer {
     // Subsystems
     // private final SixSwerveDrivetrain m_drive;
-    private final Octavian m_drive;
+    // private final Octavian m_drive;
+    private final Jerry m_drive;
 
     // Controller
     private final SixXBoxController m_driverController = new SixXBoxController(0);
@@ -44,7 +46,7 @@ public class RobotContainer {
      */
     public RobotContainer() {
         // m_drive = new SwerveDrivetrain();
-        m_drive = new Octavian();
+        m_drive = new Jerry();
 
         // Configure the button bindings
         configureButtonBindings();

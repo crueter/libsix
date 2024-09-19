@@ -76,7 +76,7 @@ public class SixSparkMAX extends CANSparkMax implements SixMotorController {
 
     @Override
     public void setPositionNU(double nu) {
-        SmartDashboard.putNumber("PID " + super.getDeviceId(), nu - m_relativeEncoder.getPosition());
+        SmartDashboard.putNumber("PID " + super.getDeviceId(), nu);// - m_relativeEncoder.getPosition());
         m_pid.setReference(nu, ControlType.kPosition, m_slot, m_arbFeedforward);
     }
 

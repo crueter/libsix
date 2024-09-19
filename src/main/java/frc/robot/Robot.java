@@ -20,12 +20,10 @@ public class Robot extends TimedRobot {
     private Command autonomousCommand;
     private RobotContainer robotContainer;
 
-    // private SixSparkMAX m_motor = new SixSparkMAX(1);
-    // private CANSparkMax m_motor = new CANSparkMax(1, MotorType.kBrushless);
-    // private RelativeEncoder m_encoder = m_motor.getEncoder();
-    // private SparkPIDController m_pid = m_motor.getPIDController();
-
-    // private LEDs m_leds;
+    // private SixSparkMAX m_motor = new SixSparkMAX(6);
+    // private SixSparkMAXEncoder m_encoder = new
+    // SixSparkMAXEncoder(m_motor.getAbsoluteEncoder());
+    // private DataSignal<Double> m_deez = m_motor.getPositionNU(false);
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -37,10 +35,15 @@ public class Robot extends TimedRobot {
         // and put our autonomous chooser on the dashboard.
         robotContainer = new RobotContainer();
         // m_motor.restoreFactoryDefaults();
-        // m_motor.setPID(new SixPIDConstants(0.0001).withkV(0.000169));
-        // m_motor.setEncoderGearRatio(20);
-        // m_encoder.setPosition(0);
-        // m_pid.setP(0.0006);
+        // m_motor.setPID(new SixPIDConstants(0.05));
+        // m_motor.getPIDController().setFeedbackDevice(m_motor.getEncoder());
+        // m_motor.getPIDController().setPositionPIDWrappingEnabled(false);
+        // m_motor.setEncoderGearRatio(49.0);
+        // m_deez.setUpdateFrequency(50);
+
+        // m_encoder.setAbsoluteOffset(Rotation2d.fromDegrees(325.6));
+        // m_encoder.setCWPositive(true);
+        // m_motor.setEncoderPositionMotorRotations(m_encoder.getEncoderPosition(true).getValue().getRotations());
     }
 
     /** This function is called periodically during all modes. */
@@ -52,13 +55,7 @@ public class Robot extends TimedRobot {
         // This must be called from the robot's periodic block in order for anything in
         // the Command-based framework to work.
         CommandScheduler.getInstance().run();
-        // CTRESignalStore.update();
-        // m_motor.setAngle(Rotation2d.fromDegrees(90.0));
-        // m_motor.setVelocity(MetersPerSecond.of(1.0));
-        // m_motor.setVelocityNU(3000);
-        // SmartDashboard.putNumber("sneed", m_motor.getVelocityNU().getValue());
-        // m_pid.setReference(3000, ControlType.kVelocity);
-        // SmartDashboard.putNumber("sneed", m_encoder.getVelocity());
+        // SmartDashboard.putNumber("SNEED", m_motor.getEncoder().getPosition());
     }
 
     /** This function is called once when the robot is disabled. */
@@ -93,6 +90,8 @@ public class Robot extends TimedRobot {
     /** This function is called once when teleop is enabled. */
     @Override
     public void teleopInit() {
+        // m_motor.getPIDController().setReference(49 * 0., ControlType.kPosition);
+
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }

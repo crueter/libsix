@@ -23,7 +23,7 @@ public class SixPositionAngle extends SixControlRequest {
     /**
      * Output value (current, voltage, duty cycle)
      */
-    public OutputType Output = OutputType.Voltage;
+    public OutputType Output = OutputType.DutyCycle;
 
     public SixPositionAngle() {
     }
